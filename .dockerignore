@@ -1,0 +1,14 @@
+.git
+.github
+.next
+.idea
+.codex
+.agents
+node_modules
+npm-debug.log*
+.env*
+public/uploads
+src/generated/prisma
+Dockerfile.dev
+compose.yaml
+README.md
