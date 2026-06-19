@@ -4,6 +4,8 @@ import { getAdminEntries } from "@/features/content/lib/content-repository";
 import { sectionSlugs } from "@/features/content/lib/sections";
 import { getSiteUrl } from "@/shared/config/site";
 
+export const dynamic = "force-dynamic";
+
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const siteUrl = getSiteUrl();
   const entries = await getAdminEntries();
