@@ -1,0 +1,2 @@
+/Users/arturkrystsia/WebstormProjects/synarava/kids-diary/.agents/skills/prisma-database-setup/references/mongodb.md
+/Users/arturkrystsia/WebstormProjects/synarava/kids-diary/design-system/synarava-kids-diary/MASTER.md

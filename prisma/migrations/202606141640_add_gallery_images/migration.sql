@@ -1,0 +1,1 @@
+-- Gallery images are part of the PostgreSQL baseline migration.

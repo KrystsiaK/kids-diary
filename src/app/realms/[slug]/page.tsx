@@ -1,0 +1,53 @@
+import type { Metadata } from "next";
+import { notFound } from "next/navigation";
+
+import { EntryDetailPage } from "@/features/content/components/entry-detail-page";
+import {
+  getEntryBySectionAndSlug,
+  getRelatedEntries,
+} from "@/features/content/lib/content-repository";
+import { createEntryMetadata } from "@/shared/lib/seo";
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}): Promise<Metadata> {
+  const { slug } = await params;
+  const entry = await getEntryBySectionAndSlug("realms", slug);
+
+  if (!entry) {
+    return {
+      title: "Entry not found",
+      robots: {
+        index: false,
+        follow: false,
+      },
+    };
+  }
+
+  return createEntryMetadata("realms", entry);
+}
+
+export default async function RealmEntryPage({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}) {
+  const { slug } = await params;
+  const entry = await getEntryBySectionAndSlug("realms", slug);
+
+  if (!entry) {
+    notFound();
+  }
+
+  const relatedEntries = await getRelatedEntries("realms", entry.id);
+
+  return (
+    <EntryDetailPage
+      entry={entry}
+      relatedEntries={relatedEntries}
+      section="realms"
+    />
+  );
+}

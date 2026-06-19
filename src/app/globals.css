@@ -1,0 +1,86 @@
+@import "tailwindcss";
+
+:root {
+  --background: #0a0e14;
+  --foreground: #ece7df;
+  --muted: #8f8a83;
+  --surface: rgba(255, 255, 255, 0.04);
+  --surface-strong: rgba(255, 255, 255, 0.08);
+  --accent: #6b5ca5;
+  --accent-foreground: #f3efe8;
+  --secondary: #4a7c9d;
+  --sand: #d4925a;
+  --ring: #c7bbf5;
+  --border: rgba(255, 255, 255, 0.1);
+  --font-body:
+    "Manrope", "Avenir Next", "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+  --font-display:
+    "Cormorant Garamond", "Iowan Old Style", "Palatino Linotype", "Book Antiqua",
+    Baskerville, "Times New Roman", serif;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-body);
+  --font-display: var(--font-display);
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  background: var(--background);
+}
+
+body {
+  background:
+    radial-gradient(circle at top, rgba(107, 92, 165, 0.16), transparent 30%),
+    radial-gradient(circle at 85% 12%, rgba(74, 124, 157, 0.12), transparent 20%),
+    var(--background);
+  color: var(--foreground);
+  font-family: var(--font-body), sans-serif;
+  line-height: 1.5;
+  text-rendering: optimizeLegibility;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button {
+  font: inherit;
+}
+
+img {
+  display: block;
+}
+
+::selection {
+  background: color-mix(in oklab, var(--accent) 55%, black);
+  color: white;
+}
+
+.font-display {
+  font-family: var(--font-display), serif;
+  letter-spacing: -0.03em;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html:focus-within {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

@@ -1,0 +1,25 @@
+<svg width="512" height="512" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="48" height="48" rx="12" fill="#0A0E14"/>
+  <rect x="1" y="1" width="46" height="46" rx="11" stroke="url(#frame)" stroke-opacity="0.32"/>
+  <circle cx="24" cy="24" r="19" stroke="url(#orbit)" stroke-width="1.6"/>
+  <circle cx="24" cy="24" r="13.5" stroke="#ECE7DF" stroke-opacity="0.2" stroke-width="1.2" stroke-linecap="round" stroke-dasharray="1.8 4.2"/>
+  <path d="M16.5 33.5L24 14.5L31.5 33.5" stroke="#F7F3EE" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M19.4 26.2H28.6" stroke="url(#crossbar)" stroke-width="2.4" stroke-linecap="round"/>
+  <path d="M24 14.5V36.8" stroke="#ECE7DF" stroke-opacity="0.72" stroke-width="1.2" stroke-linecap="round"/>
+  <circle cx="24" cy="11" r="2.4" fill="#D4925A"/>
+  <path d="M33.8 14.2L34.9 17L37.8 18.1L34.9 19.2L33.8 22L32.7 19.2L29.9 18.1L32.7 17L33.8 14.2Z" fill="#6B5CA5"/>
+  <defs>
+    <linearGradient id="orbit" x1="8" y1="9" x2="39" y2="40" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#6B5CA5"/>
+      <stop offset="1" stop-color="#4A7C9D"/>
+    </linearGradient>
+    <linearGradient id="crossbar" x1="19.4" y1="26.2" x2="28.6" y2="26.2" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#4A7C9D"/>
+      <stop offset="1" stop-color="#6B5CA5"/>
+    </linearGradient>
+    <linearGradient id="frame" x1="4" y1="5" x2="44" y2="43" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#6B5CA5"/>
+      <stop offset="1" stop-color="#4A7C9D"/>
+    </linearGradient>
+  </defs>
+</svg>
