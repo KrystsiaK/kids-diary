@@ -8,7 +8,6 @@ export const dynamic = "force-dynamic";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const siteUrl = getSiteUrl();
-  const entries = await getAdminEntries();
 
   const staticRoutes: MetadataRoute.Sitemap = [
     "",
@@ -22,25 +21,27 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     lastModified: new Date(),
   }));
 
-  const entryRoutes: MetadataRoute.Sitemap = entries
-    .filter((entry) => entry.status === "PUBLISHED")
-    .map((entry) => {
-      const section = sectionSlugs.find(
-        (value) => value.toUpperCase() === entry.section,
+  let entryRoutes: MetadataRoute.Sitemap = [];
+  try {
+    const entries = await getAdminEntries();
+    entryRoutes = entries
+      .filter((entry) => entry.status === "PUBLISHED")
+      .map((entry) => {
+        const section = sectionSlugs.find(
+          (value) => value.toUpperCase() === entry.section,
+        );
+        if (!section) return null;
+        return {
+          url: `${siteUrl}/${section}/${entry.slug}`,
+          lastModified: entry.updatedAt,
+        };
+      })
+      .filter((item): item is { url: string; lastModified: Date } =>
+        Boolean(item),
       );
-
-      if (!section) {
-        return null;
-      }
-
-      return {
-        url: `${siteUrl}/${section}/${entry.slug}`,
-        lastModified: entry.updatedAt,
-      };
-    })
-    .filter((item): item is { url: string; lastModified: Date } =>
-      Boolean(item),
-    );
+  } catch {
+    // DB not available at build time — sitemap will include only static routes
+  }
 
   return [...staticRoutes, ...entryRoutes];
 }
