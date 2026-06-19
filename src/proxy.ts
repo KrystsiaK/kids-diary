@@ -41,7 +41,7 @@ async function verifySessionToken(value: string | undefined): Promise<boolean> {
   return crypto.subtle.verify("HMAC", key, sigBytes, encoder.encode(expiresAtRaw));
 }
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   if (pathname === "/admin/login") {

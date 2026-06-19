@@ -4,6 +4,8 @@ import { SectionArchivePage } from "@/features/content/components/section-archiv
 import { getEntriesForSection } from "@/features/content/lib/content-repository";
 import { createSectionMetadata } from "@/shared/lib/seo";
 
+export const dynamic = "force-dynamic";
+
 export const metadata: Metadata = createSectionMetadata("journal");
 
 export default async function JournalPage() {

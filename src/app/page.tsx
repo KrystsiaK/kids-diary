@@ -3,6 +3,8 @@ import type { Metadata } from "next";
 import { MarketingPage } from "@/features/marketing/components/marketing-page";
 import { createPageMetadata } from "@/shared/lib/seo";
 
+export const dynamic = "force-dynamic";
+
 export const metadata: Metadata = createPageMetadata({
   title: "Home",
   description:

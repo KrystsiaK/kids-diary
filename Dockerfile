@@ -17,7 +17,11 @@ COPY . .
 RUN DATABASE_URL="postgresql://placeholder:x@localhost:5432/placeholder" \
     npx prisma generate
 
-RUN npm run build
+# DATABASE_URL must be set so prisma.ts module can be loaded;
+# no actual DB connection is made during build (all pages are force-dynamic)
+RUN DATABASE_URL="postgresql://placeholder:x@localhost:5432/placeholder" \
+    NEXT_TELEMETRY_DISABLED=1 \
+    npm run build
 
 # --- Runner ---
 FROM node:22-bookworm-slim AS runner
