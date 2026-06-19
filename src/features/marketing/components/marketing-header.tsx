@@ -16,14 +16,14 @@ export function MarketingHeader() {
 
   return (
     <header className="sticky top-0 z-50 border-b border-white/8 bg-[rgba(10,14,20,0.72)] backdrop-blur-xl">
-      <SiteShell className="py-3">
+      <SiteShell className="relative py-3">
         <div className="flex min-h-20 items-center justify-between gap-3">
           <Link
             className="min-w-0 flex items-center gap-3 text-stone-100"
             href="/"
             onClick={() => setMenuOpen(false)}
           >
-            <div className="max-sm:[&_div:last-child>div:last-child]:hidden">
+            <div className="max-sm:[&_.brand-tagline]:hidden">
               <BrandMark size="sm" />
             </div>
           </Link>
@@ -64,7 +64,7 @@ export function MarketingHeader() {
         </div>
 
         {menuOpen && (
-          <div className="mt-3 rounded-[1.8rem] border border-white/8 bg-[rgba(9,13,20,0.96)] p-3 shadow-[0_20px_60px_rgba(0,0,0,0.3)] md:hidden">
+          <div className="absolute inset-x-5 top-full z-50 mt-3 rounded-[1.8rem] border border-white/8 bg-[rgba(9,13,20,0.96)] p-3 shadow-[0_20px_60px_rgba(0,0,0,0.3)] sm:inset-x-8 md:hidden">
             <nav aria-label="Mobile primary" className="grid gap-2">
               {mainNavigation.map((item) => (
                 <Link

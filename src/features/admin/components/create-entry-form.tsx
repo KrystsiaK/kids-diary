@@ -7,8 +7,22 @@ import {
   useRef,
   useState,
 } from "react";
+import { useFormStatus } from "react-dom";
 
 import { createEntryAction } from "@/features/admin/actions/create-entry";
+
+function SubmitButton() {
+  const { pending } = useFormStatus();
+  return (
+    <button
+      className="w-full rounded-full bg-[var(--accent)] px-5 py-3 text-sm font-semibold text-white transition hover:bg-[color-mix(in_oklab,var(--accent)_82%,white)] disabled:cursor-not-allowed disabled:opacity-50"
+      disabled={pending}
+      type="submit"
+    >
+      {pending ? "Saving…" : "Save entry"}
+    </button>
+  );
+}
 
 function slugify(value: string) {
   return value
@@ -19,15 +33,21 @@ function slugify(value: string) {
     .slice(0, 80);
 }
 
+const INPUT_CLS =
+  "w-full rounded-2xl border border-white/10 bg-black/20 px-4 py-3 text-sm text-white outline-none placeholder:text-stone-600 transition focus:border-[var(--ring)]/40 focus:ring-2 focus:ring-[var(--ring)]/20";
+
 export function CreateEntryForm() {
   const [title, setTitle] = useState("");
   const [slug, setSlug] = useState("");
   const [slugTouched, setSlugTouched] = useState(false);
+  const [excerptLength, setExcerptLength] = useState(0);
+  const [dragOver, setDragOver] = useState(false);
   const [selectedImages, setSelectedImages] = useState<
     Array<{ id: string; file: File; previewUrl: string }>
   >([]);
   const [coverIndex, setCoverIndex] = useState(0);
   const galleryInputRef = useRef<HTMLInputElement>(null);
+  const bodyRef = useRef<HTMLTextAreaElement>(null);
   const selectedImagesRef = useRef(selectedImages);
 
   const generatedSlug = useMemo(() => slugify(title), [title]);
@@ -126,11 +146,9 @@ export function CreateEntryForm() {
         <label className="space-y-2">
           <span className="text-sm text-stone-300">Title</span>
           <input
-            className="w-full rounded-2xl border border-white/10 bg-black/20 px-4 py-3 text-sm text-white outline-none ring-0 placeholder:text-stone-600"
+            className={INPUT_CLS}
             name="title"
-            onChange={(event) => {
-              setTitle(event.target.value);
-            }}
+            onChange={(event) => setTitle(event.target.value)}
             placeholder="When the sky became a map"
             required
             type="text"
@@ -140,7 +158,7 @@ export function CreateEntryForm() {
         <label className="space-y-2">
           <span className="text-sm text-stone-300">Section</span>
           <select
-            className="w-full rounded-2xl border border-white/10 bg-black/20 px-4 py-3 text-sm text-white outline-none"
+            className={INPUT_CLS}
             defaultValue="journal"
             name="section"
           >
@@ -155,7 +173,7 @@ export function CreateEntryForm() {
         <label className="space-y-2">
           <span className="text-sm text-stone-300">Kicker</span>
           <input
-            className="w-full rounded-2xl border border-white/10 bg-black/20 px-4 py-3 text-sm text-white placeholder:text-stone-600"
+            className={INPUT_CLS}
             name="kicker"
             placeholder="Chapter IV"
             required
@@ -165,17 +183,10 @@ export function CreateEntryForm() {
         <label className="space-y-2">
           <span className="text-sm text-stone-300">Slug</span>
           <input
-            className="w-full rounded-2xl border border-white/10 bg-black/20 px-4 py-3 text-sm text-white placeholder:text-stone-600"
+            className={INPUT_CLS}
             name="slug"
-            onBlur={() => {
-              if (slugValue) {
-                setSlugTouched(true);
-              }
-            }}
-            onChange={(event) => {
-              setSlugTouched(true);
-              setSlug(event.target.value);
-            }}
+            onBlur={() => { if (slugValue) setSlugTouched(true); }}
+            onChange={(event) => { setSlugTouched(true); setSlug(event.target.value); }}
             placeholder="optional-custom-slug"
             type="text"
             value={slugValue}
@@ -187,10 +198,17 @@ export function CreateEntryForm() {
       </div>
 
       <label className="space-y-2">
-        <span className="text-sm text-stone-300">Excerpt</span>
+        <div className="flex items-baseline justify-between">
+          <span className="text-sm text-stone-300">Excerpt</span>
+          <span className={`text-xs tabular-nums transition ${excerptLength > 240 ? "text-amber-400" : "text-stone-600"}`}>
+            {excerptLength} / 280
+          </span>
+        </div>
         <textarea
-          className="min-h-24 w-full rounded-2xl border border-white/10 bg-black/20 px-4 py-3 text-sm text-white placeholder:text-stone-600"
+          className={`min-h-24 ${INPUT_CLS}`}
+          maxLength={280}
           name="excerpt"
+          onChange={(e) => setExcerptLength(e.target.value.length)}
           placeholder="Short summary for cards and archive pages."
           required
         />
@@ -199,9 +217,15 @@ export function CreateEntryForm() {
       <label className="space-y-2">
         <span className="text-sm text-stone-300">Body content</span>
         <textarea
-          className="min-h-40 w-full rounded-2xl border border-white/10 bg-black/20 px-4 py-3 text-sm text-white placeholder:text-stone-600"
+          className={`min-h-40 resize-none overflow-hidden ${INPUT_CLS}`}
           name="content"
+          onChange={(e) => {
+            const el = e.currentTarget;
+            el.style.height = "auto";
+            el.style.height = `${el.scrollHeight}px`;
+          }}
           placeholder="Write the full entry here. Separate paragraphs with blank lines."
+          ref={bodyRef}
           required
         />
       </label>
@@ -245,7 +269,7 @@ export function CreateEntryForm() {
         <label className="space-y-2">
           <span className="text-sm text-stone-300">Read minutes</span>
           <input
-            className="w-full rounded-2xl border border-white/10 bg-black/20 px-4 py-3 text-sm text-white placeholder:text-stone-600"
+            className={INPUT_CLS}
             min="1"
             name="readMinutes"
             placeholder="Auto if empty"
@@ -260,7 +284,7 @@ export function CreateEntryForm() {
             <div className="text-sm text-stone-300">Gallery images</div>
             <p className="mt-1 text-xs leading-5 text-stone-500">
               Add as many photos as you need, preview them here, remove any of them,
-              and choose one as cover. Up to 24 images, 8 MB each.
+              and choose one as cover. Up to 24 images.
             </p>
           </div>
           <button
@@ -287,7 +311,15 @@ export function CreateEntryForm() {
         <input name="coverIndex" type="hidden" value={selectedImages.length > 0 ? coverIndex : 0} />
 
         {selectedImages.length > 0 ? (
-          <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+          <div
+            className={`grid gap-4 rounded-[1.5rem] border border-dashed p-3 transition sm:grid-cols-2 xl:grid-cols-3 ${
+              dragOver ? "border-[var(--accent)] bg-[var(--accent)]/5" : "border-white/10"
+            }`}
+            onDragEnter={(e) => { e.preventDefault(); setDragOver(true); }}
+            onDragLeave={(e) => { e.preventDefault(); setDragOver(false); }}
+            onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
+            onDrop={(e) => { e.preventDefault(); setDragOver(false); handleAddFiles(e.dataTransfer.files); }}
+          >
             {selectedImages.map((image, index) => {
               const isCover = index === coverIndex;
 
@@ -343,8 +375,21 @@ export function CreateEntryForm() {
             })}
           </div>
         ) : (
-          <div className="rounded-[1.5rem] border border-dashed border-white/10 bg-black/20 px-6 py-10 text-center text-sm leading-6 text-stone-500">
-            No photos added yet. Start by clicking <span className="text-stone-300">Add photos</span>.
+          <div
+            className={`rounded-[1.5rem] border border-dashed px-6 py-10 text-center text-sm leading-6 transition ${
+              dragOver
+                ? "border-[var(--accent)] bg-[var(--accent)]/5 text-stone-300"
+                : "border-white/10 bg-black/20 text-stone-500"
+            }`}
+            onDragEnter={(e) => { e.preventDefault(); setDragOver(true); }}
+            onDragLeave={(e) => { e.preventDefault(); setDragOver(false); }}
+            onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
+            onDrop={(e) => { e.preventDefault(); setDragOver(false); handleAddFiles(e.dataTransfer.files); }}
+          >
+            {dragOver
+              ? "Drop photos here"
+              : <>No photos added yet. Click <span className="text-stone-300">Add photos</span> or drag files here.</>
+            }
           </div>
         )}
       </div>
@@ -353,7 +398,7 @@ export function CreateEntryForm() {
         <label className="space-y-2">
           <span className="text-sm text-stone-300">Status</span>
           <select
-            className="w-full rounded-2xl border border-white/10 bg-black/20 px-4 py-3 text-sm text-white outline-none"
+            className={INPUT_CLS}
             defaultValue="PUBLISHED"
             name="status"
           >
@@ -361,18 +406,13 @@ export function CreateEntryForm() {
             <option value="DRAFT">Draft</option>
           </select>
         </label>
-        <label className="flex items-center gap-3 rounded-2xl border border-white/10 bg-black/20 px-4 py-3">
-          <input className="size-4" defaultChecked name="featured" type="checkbox" />
+        <label className="flex cursor-pointer items-center gap-3 rounded-2xl border border-white/10 bg-black/20 px-4 py-3 transition hover:bg-white/[0.03]">
+          <input className="size-4 accent-[var(--accent)]" defaultChecked name="featured" type="checkbox" />
           <span className="text-sm text-stone-300">Mark as featured</span>
         </label>
       </div>
 
-      <button
-        className="w-full rounded-full bg-[var(--accent)] px-5 py-3 text-sm font-semibold text-white transition hover:bg-[color-mix(in_oklab,var(--accent)_82%,white)]"
-        type="submit"
-      >
-        Save entry
-      </button>
+      <SubmitButton />
     </form>
   );
 }

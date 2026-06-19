@@ -34,7 +34,7 @@ export function HeroSection() {
             <RevealItem>
               <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
                 <PrimaryButton href="/journal">Begin exploring</PrimaryButton>
-                <PrimaryButton href="/admin" variant="ghost">
+                <PrimaryButton href="#journal" variant="ghost">
                   Enter the archive room
                 </PrimaryButton>
               </div>

@@ -1,20 +1,49 @@
 import "server-only";
 
-import path from "node:path";
 import { mkdir, writeFile } from "node:fs/promises";
 import { randomUUID } from "node:crypto";
 
 import { PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
+import { fileTypeFromBuffer } from "file-type";
 
 import { getUploadsConfig } from "@/lib/uploads";
+
+const ALLOWED_IMAGE_MIME_TYPES = new Set([
+  "image/jpeg",
+  "image/png",
+  "image/webp",
+  "image/gif",
+  "image/avif",
+]);
+
+const MIME_TO_EXTENSION: Record<string, string> = {
+  "image/jpeg": ".jpg",
+  "image/png": ".png",
+  "image/webp": ".webp",
+  "image/gif": ".gif",
+  "image/avif": ".avif",
+};
 
 export type StorageMode = "local" | "s3";
 
 type SaveImageInput = {
   bytes: Buffer;
   contentType: string;
-  filename: string;
+  safeFilename: string;
 };
+
+async function validateImageMime(bytes: Buffer): Promise<string> {
+  const detected = await fileTypeFromBuffer(bytes);
+  if (!detected || !ALLOWED_IMAGE_MIME_TYPES.has(detected.mime)) {
+    throw new Error(`Unsupported image format: ${detected?.mime ?? "unknown"}`);
+  }
+  return detected.mime;
+}
+
+function buildSafeFilename(detectedMime: string): string {
+  const ext = MIME_TO_EXTENSION[detectedMime] ?? ".jpg";
+  return `${randomUUID()}${ext}`;
+}
 
 function normalizeUploadsSubdir(value: string | undefined) {
   const candidate = value?.trim().replace(/^\/+|\/+$/g, "") || "uploads";
@@ -24,11 +53,6 @@ function normalizeUploadsSubdir(value: string | undefined) {
     .map((segment) => segment.replace(/[^a-zA-Z0-9/_-]/g, ""))
     .filter(Boolean)
     .join("/");
-}
-
-function sanitizeFilename(filename: string) {
-  const extension = path.extname(filename).toLowerCase() || ".jpg";
-  return `${randomUUID()}${extension.replace(/[^a-z0-9.]/g, "")}`;
 }
 
 function getStorageMode(): StorageMode {
@@ -84,22 +108,21 @@ function getS3Client() {
   return cachedS3Client;
 }
 
-async function saveImageLocally({ bytes, filename }: SaveImageInput) {
+async function saveImageLocally({ bytes, safeFilename }: SaveImageInput) {
   const { uploadsDir, publicBasePath } = getUploadsConfig();
   await mkdir(uploadsDir, { recursive: true });
 
-  const savedFilename = sanitizeFilename(filename);
-  const absolutePath = path.join(uploadsDir, savedFilename);
+  const { join } = await import("node:path");
+  const absolutePath = join(uploadsDir, safeFilename);
   await writeFile(absolutePath, bytes);
 
-  return `${publicBasePath}/${savedFilename}`;
+  return `${publicBasePath}/${safeFilename}`;
 }
 
-async function saveImageToS3({ bytes, contentType, filename }: SaveImageInput) {
+async function saveImageToS3({ bytes, contentType, safeFilename }: SaveImageInput) {
   const config = getS3Config();
   const client = getS3Client();
-  const savedFilename = sanitizeFilename(filename);
-  const key = config.keyPrefix ? `${config.keyPrefix}/${savedFilename}` : savedFilename;
+  const key = config.keyPrefix ? `${config.keyPrefix}/${safeFilename}` : safeFilename;
 
   await client.send(
     new PutObjectCommand({
@@ -120,10 +143,13 @@ export async function saveUploadedImage(file: File) {
   }
 
   const bytes = Buffer.from(await file.arrayBuffer());
+  const detectedMime = await validateImageMime(bytes);
+  const safeFilename = buildSafeFilename(detectedMime);
+
   const input: SaveImageInput = {
     bytes,
-    contentType: file.type || "application/octet-stream",
-    filename: file.name,
+    contentType: detectedMime,
+    safeFilename,
   };
 
   if (getStorageMode() === "s3") {

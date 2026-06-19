@@ -35,8 +35,7 @@ export async function AdminLoginPage({ searchParams }: AdminLoginPageProps) {
                 Sign in to the control room
               </h1>
               <p className="mt-3 text-base leading-7 text-stone-400">
-                The admin area is now protected by an encrypted server-side
-                session cookie. Use the deployment password to continue.
+                Enter the administrator password to continue.
               </p>
             </div>
 
@@ -49,7 +48,7 @@ export async function AdminLoginPage({ searchParams }: AdminLoginPageProps) {
                 }`}
               >
                 {error
-                  ? "Incorrect password. Check ADMIN_PASSWORD and try again."
+                  ? "Incorrect password. Try again."
                   : "You have been signed out."}
               </div>
             )}
@@ -59,9 +58,9 @@ export async function AdminLoginPage({ searchParams }: AdminLoginPageProps) {
                 <span className="text-sm text-stone-300">Admin password</span>
                 <input
                   autoComplete="current-password"
-                  className="w-full rounded-2xl border border-white/10 bg-black/20 px-4 py-3 text-sm text-white outline-none placeholder:text-stone-600"
+                  className="w-full rounded-2xl border border-white/10 bg-black/20 px-4 py-3 text-sm text-white outline-none placeholder:text-stone-600 transition focus:border-[var(--ring)]/40 focus:ring-2 focus:ring-[var(--ring)]/20"
                   name="password"
-                  placeholder="Enter the deployment password"
+                  placeholder="Enter admin password"
                   required
                   type="password"
                 />
@@ -74,12 +73,6 @@ export async function AdminLoginPage({ searchParams }: AdminLoginPageProps) {
                 Enter admin
               </button>
             </form>
-
-            <div className="rounded-[1.4rem] border border-white/8 bg-black/20 px-4 py-4 text-sm leading-6 text-stone-400">
-              Keep <code className="text-stone-200">AUTH_SECRET</code> and{" "}
-              <code className="text-stone-200">ADMIN_PASSWORD</code> set in
-              Railway before publishing this environment.
-            </div>
 
             <Link
               className="inline-flex rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm text-stone-200 transition hover:bg-white/10"

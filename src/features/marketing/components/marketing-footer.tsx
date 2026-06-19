@@ -7,12 +7,12 @@ import { SiteShell } from "@/shared/ui/site-shell";
 export function MarketingFooter() {
   return (
     <footer className="border-t border-white/8 bg-black/30 py-14">
-      <SiteShell className="grid gap-10 lg:grid-cols-[1.2fr_0.9fr_0.9fr_0.9fr]">
+      <SiteShell className="grid gap-10 text-center lg:grid-cols-[1.2fr_0.9fr_0.9fr_0.9fr] lg:text-left">
         <div>
-          <div className="flex items-center gap-3 text-stone-100">
+          <div className="flex items-center justify-center gap-3 text-stone-100 lg:justify-start">
             <BrandMark showTagline={false} size="md" />
           </div>
-          <p className="mt-4 max-w-md text-sm leading-7 text-stone-400">
+          <p className="mx-auto mt-4 max-w-md text-sm leading-7 text-stone-400 lg:mx-0">
             A personal atlas of curiosity, field notes, and strange little
             breakthroughs that deserve a second look.
           </p>

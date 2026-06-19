@@ -2,6 +2,25 @@
 
 Next.js editorial site with a protected admin area, Prisma, PostgreSQL, and multi-image entry publishing.
 
+## Docker setup
+
+Start the application and PostgreSQL together:
+
+```bash
+docker compose up --build
+```
+
+Open `http://localhost:3000`. The local admin password defaults to `admin` and
+can be overridden before startup:
+
+```bash
+ADMIN_PASSWORD=your-password AUTH_SECRET=your-long-random-secret docker compose up --build
+```
+
+Database data and uploaded files are stored in named Docker volumes. Stop the
+containers with `docker compose down`; add `--volumes` only when you also want
+to delete the local data.
+
 ## Local setup
 
 1. Copy `.env.example` values into your local environment.
@@ -83,7 +102,7 @@ npm run start
 - Server Actions verify admin auth server-side and do not rely on client state.
 - Default seed content is disabled in production unless `ENABLE_SEED_CONTENT=true`.
 - Security headers are configured in `next.config.ts`.
-- Uploads accept only common image formats and reject files larger than 8 MB.
+- Uploads accept common image formats supported by the publishing form.
 - Uploads can be stored either on a Railway volume or an S3-compatible bucket, depending on `FILE_STORAGE_MODE`.
 
 ## Post-deploy checklist

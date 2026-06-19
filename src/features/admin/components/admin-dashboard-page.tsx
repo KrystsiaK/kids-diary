@@ -2,12 +2,13 @@ import Link from "next/link";
 
 import { logoutAction } from "@/features/admin/actions/auth";
 import { CreateEntryForm } from "@/features/admin/components/create-entry-form";
+import { EntryManagementActions } from "@/features/admin/components/entry-management-actions";
 import { formatRelativeAdminDate } from "@/features/content/lib/formatters";
 import { getAdminEntries, getAdminMetrics } from "@/features/content/lib/content-repository";
 import { adminSidebar } from "@/shared/config/site-content";
 import { EyeIcon, OrbitIcon, SparkIcon } from "@/shared/icons/site-icons";
 import { BrandMark } from "@/shared/ui/brand-mark";
-import { RevealGroup, RevealItem } from "@/shared/ui/reveal";
+import { RevealItem } from "@/shared/ui/reveal";
 import { SiteShell } from "@/shared/ui/site-shell";
 
 type AdminDashboardPageProps = {
@@ -21,6 +22,8 @@ export async function AdminDashboardPage({
   const metrics = await getAdminMetrics();
   const entries = await getAdminEntries();
   const created = params.created === "1";
+  const updated = params.updated === "1";
+  const deleted = params.deleted === "1";
   const error = typeof params.error === "string" ? params.error : null;
 
   return (
@@ -82,7 +85,7 @@ export async function AdminDashboardPage({
             </div>
           </aside>
 
-          <RevealGroup className="space-y-6">
+          <div className="space-y-6">
             <RevealItem
               className="rounded-[2rem] border border-white/8 bg-white/[0.04] p-6 shadow-[0_24px_80px_rgba(0,0,0,0.2)] sm:p-8"
               id="overview"
@@ -144,20 +147,28 @@ export async function AdminDashboardPage({
               </div>
             </RevealItem>
 
-            {(created || error) && (
+            {(created || updated || deleted || error) && (
               <RevealItem
                 className={`rounded-[1.4rem] border px-5 py-4 text-sm ${
-                  created
+                  created || updated || deleted
                     ? "border-emerald-500/25 bg-emerald-500/10 text-emerald-100"
                     : "border-rose-500/20 bg-rose-500/10 text-rose-100"
                 }`}
               >
                 {created
                   ? "Entry created successfully. Published content is now live on its section page and homepage feeds."
+                  : updated
+                    ? "Entry status updated successfully."
+                    : deleted
+                      ? "Entry deleted successfully."
                   : error === "slug-exists"
                     ? "That slug already exists. Change the title or provide a unique slug."
+                    : error === "entry-not-found"
+                      ? "That entry no longer exists. Refresh the page and try again."
+                      : error === "invalid-status"
+                        ? "Choose a valid publication status."
                     : error === "invalid-image"
-                      ? "Images must be JPG, PNG, WebP, GIF, or AVIF and each file must stay under 8 MB."
+                      ? "Images must be JPG, PNG, WebP, GIF, or AVIF."
                       : error === "too-many-images"
                         ? "Upload up to 24 gallery images per entry."
                     : "Please fill in all required fields before creating an entry."}
@@ -219,14 +230,15 @@ export async function AdminDashboardPage({
                   </div>
                 </div>
 
-                <div className="overflow-hidden rounded-[1.4rem] border border-white/8">
-                  <table className="w-full border-collapse text-left">
+                <div className="overflow-x-auto rounded-[1.4rem] border border-white/8">
+                  <table className="min-w-[760px] w-full border-collapse text-left">
                     <thead className="bg-white/[0.04] text-xs uppercase tracking-[0.2em] text-stone-500">
                       <tr>
                         <th className="px-4 py-4 font-medium">Title</th>
                         <th className="px-4 py-4 font-medium">Section</th>
                         <th className="px-4 py-4 font-medium">Updated</th>
                         <th className="px-4 py-4 font-medium">Status</th>
+                        <th className="px-4 py-4 font-medium">Actions</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -242,9 +254,22 @@ export async function AdminDashboardPage({
                             {formatRelativeAdminDate(entry.updatedAt)}
                           </td>
                           <td className="px-4 py-4">
-                            <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs text-stone-300">
-                              {entry.status.toLowerCase()}
+                            <span
+                              className={`rounded-full px-3 py-1 text-xs font-medium ${
+                                entry.status === "PUBLISHED"
+                                  ? "border border-emerald-500/25 bg-emerald-500/10 text-emerald-300"
+                                  : "border border-amber-500/25 bg-amber-500/10 text-amber-300"
+                              }`}
+                            >
+                              {entry.status === "PUBLISHED" ? "Published" : "Draft"}
                             </span>
+                          </td>
+                          <td className="px-4 py-4">
+                            <EntryManagementActions
+                              entryId={entry.id}
+                              entryTitle={entry.title}
+                              status={entry.status}
+                            />
                           </td>
                         </tr>
                       ))}
@@ -341,7 +366,7 @@ export async function AdminDashboardPage({
                 </RevealItem>
               </div>
             </div>
-          </RevealGroup>
+          </div>
         </div>
       </SiteShell>
     </div>

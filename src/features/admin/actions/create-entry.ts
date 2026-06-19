@@ -14,7 +14,6 @@ import { prisma } from "@/lib/prisma";
 import { saveUploadedImage } from "@/lib/storage";
 
 const MAX_GALLERY_IMAGES = 24;
-const MAX_IMAGE_SIZE_BYTES = 8 * 1024 * 1024;
 const ALLOWED_IMAGE_TYPES = new Set([
   "image/jpeg",
   "image/png",
@@ -49,12 +48,18 @@ function getFallbackCoverImage(section: EntrySectionValue) {
 }
 
 function isValidUpload(file: File) {
-  return ALLOWED_IMAGE_TYPES.has(file.type) && file.size <= MAX_IMAGE_SIZE_BYTES;
+  return ALLOWED_IMAGE_TYPES.has(file.type);
 }
 
 async function saveUploadedGallery(files: File[]) {
-  const saved = await Promise.all(files.map((file) => saveUploadedImage(file)));
-  return saved.filter((item): item is string => Boolean(item));
+  const saved = await Promise.allSettled(files.map((file) => saveUploadedImage(file)));
+  const failed = saved.some((r) => r.status === "rejected");
+  if (failed) {
+    redirect("/admin?error=invalid-image");
+  }
+  return (saved as PromiseFulfilledResult<string | null>[])
+    .map((r) => r.value)
+    .filter((item): item is string => Boolean(item));
 }
 
 export async function createEntryAction(formData: FormData) {
