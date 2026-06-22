@@ -193,7 +193,11 @@ export function CreateEntryForm() {
   const activeCover = selectedImages[coverIndex] ?? null;
 
   return (
-    <form action={formAction} className="space-y-4">
+    <form
+      action={formAction}
+      className="space-y-4"
+      onSubmit={() => syncInputFiles(selectedImages)}
+    >
       {(clientError || actionState.message) && (
         <div
           aria-live="assertive"
@@ -367,7 +371,6 @@ export function CreateEntryForm() {
           name="galleryUploads"
           onChange={(event) => {
             handleAddFiles(event.target.files);
-            event.target.value = "";
           }}
           ref={galleryInputRef}
           type="file"
