@@ -3,7 +3,12 @@ import "server-only";
 import { mkdir, writeFile } from "node:fs/promises";
 import { randomUUID } from "node:crypto";
 
-import { GetObjectCommand, PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
+import {
+  GetObjectCommand,
+  HeadBucketCommand,
+  PutObjectCommand,
+  S3Client,
+} from "@aws-sdk/client-s3";
 import { fileTypeFromBuffer } from "file-type";
 
 import { getUploadsConfig } from "@/lib/uploads";
@@ -153,6 +158,16 @@ export async function getStoredImage(key: string) {
     new GetObjectCommand({
       Bucket: config.bucket,
       Key: key,
+    }),
+  );
+}
+
+export async function checkObjectStorageConnection() {
+  const config = getS3Config();
+
+  await getS3Client().send(
+    new HeadBucketCommand({
+      Bucket: config.bucket,
     }),
   );
 }

@@ -53,7 +53,13 @@ function isValidUpload(file: File) {
 
 async function saveUploadedGallery(files: File[]) {
   const saved = await Promise.allSettled(files.map((file) => saveUploadedImage(file)));
-  const failed = saved.some((r) => r.status === "rejected");
+  const failures = saved.filter((result) => result.status === "rejected");
+
+  failures.forEach((failure) => {
+    console.error("Failed to save an uploaded image.", failure.reason);
+  });
+
+  const failed = failures.length > 0;
   if (failed) {
     redirect("/admin?error=invalid-image");
   }
