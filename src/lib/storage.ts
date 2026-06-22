@@ -3,7 +3,7 @@ import "server-only";
 import { mkdir, writeFile } from "node:fs/promises";
 import { randomUUID } from "node:crypto";
 
-import { PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
+import { GetObjectCommand, PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
 import { fileTypeFromBuffer } from "file-type";
 
 import { getUploadsConfig } from "@/lib/uploads";
@@ -68,9 +68,9 @@ function getS3Config() {
   const region = process.env.S3_REGION || "auto";
   const keyPrefix = normalizeUploadsSubdir(process.env.S3_KEY_PREFIX);
 
-  if (!bucket || !endpoint || !accessKeyId || !secretAccessKey || !publicBaseUrl) {
+  if (!bucket || !endpoint || !accessKeyId || !secretAccessKey) {
     throw new Error(
-      "S3 storage requires S3_BUCKET, S3_ENDPOINT, S3_ACCESS_KEY_ID, S3_SECRET_ACCESS_KEY, and S3_PUBLIC_BASE_URL.",
+      "S3 storage requires S3_BUCKET, S3_ENDPOINT, S3_ACCESS_KEY_ID, and S3_SECRET_ACCESS_KEY.",
     );
   }
 
@@ -79,7 +79,7 @@ function getS3Config() {
     endpoint,
     accessKeyId,
     secretAccessKey,
-    publicBaseUrl: publicBaseUrl.replace(/\/+$/, ""),
+    publicBaseUrl: publicBaseUrl?.replace(/\/+$/, "") || null,
     region,
     keyPrefix,
     forcePathStyle: process.env.S3_FORCE_PATH_STYLE === "true",
@@ -134,7 +134,27 @@ async function saveImageToS3({ bytes, contentType, safeFilename }: SaveImageInpu
     }),
   );
 
-  return `${config.publicBaseUrl}/${key}`;
+  if (config.publicBaseUrl) {
+    return `${config.publicBaseUrl}/${key}`;
+  }
+
+  const encodedKey = key
+    .split("/")
+    .map((segment) => encodeURIComponent(segment))
+    .join("/");
+
+  return `/api/media/${encodedKey}`;
+}
+
+export async function getStoredImage(key: string) {
+  const config = getS3Config();
+
+  return getS3Client().send(
+    new GetObjectCommand({
+      Bucket: config.bucket,
+      Key: key,
+    }),
+  );
 }
 
 export async function saveUploadedImage(file: File) {
@@ -158,4 +178,3 @@ export async function saveUploadedImage(file: File) {
 
   return saveImageLocally(input);
 }
-
