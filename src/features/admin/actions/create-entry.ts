@@ -22,6 +22,15 @@ const ALLOWED_IMAGE_TYPES = new Set([
   "image/avif",
 ]);
 
+export type CreateEntryState = {
+  status: "idle" | "error";
+  message: string;
+};
+
+function actionError(message: string): CreateEntryState {
+  return { status: "error", message };
+}
+
 function slugify(value: string) {
   return value
     .toLowerCase()
@@ -59,16 +68,19 @@ async function saveUploadedGallery(files: File[]) {
     console.error("Failed to save an uploaded image.", failure.reason);
   });
 
-  const failed = failures.length > 0;
-  if (failed) {
-    redirect("/admin?error=invalid-image");
+  if (failures.length > 0) {
+    return null;
   }
+
   return (saved as PromiseFulfilledResult<string | null>[])
     .map((r) => r.value)
     .filter((item): item is string => Boolean(item));
 }
 
-export async function createEntryAction(formData: FormData) {
+export async function createEntryAction(
+  _previousState: CreateEntryState,
+  formData: FormData,
+): Promise<CreateEntryState> {
   await requireAdminSession();
 
   const title = String(formData.get("title") ?? "").trim();
@@ -85,34 +97,47 @@ export async function createEntryAction(formData: FormData) {
     .filter((item): item is File => item instanceof File && item.size > 0);
 
   if (!title || !kicker || !excerpt || !content || !isSectionSlug(sectionSlug)) {
-    redirect("/admin?error=missing-fields");
+    return actionError("Fill in every required field before saving the entry.");
   }
 
   if (galleryUploads.length > MAX_GALLERY_IMAGES) {
-    redirect("/admin?error=too-many-images");
+    return actionError("You can upload up to 24 images per entry.");
   }
 
   if (!galleryUploads.every(isValidUpload)) {
-    redirect("/admin?error=invalid-image");
+    return actionError("Use JPG, PNG, WebP, GIF, or AVIF images only.");
   }
 
   const section = sectionConfig[sectionSlug].dbValue;
   const slug = slugify(String(formData.get("slug") ?? "") || title);
 
   if (!slug) {
-    redirect("/admin?error=invalid-slug");
+    return actionError("Enter a title or provide a valid URL slug.");
   }
 
-  const existing = await prisma.entry.findUnique({
-    where: { slug },
-    select: { id: true },
-  });
+  let existing: { id: string } | null;
+
+  try {
+    existing = await prisma.entry.findUnique({
+      where: { slug },
+      select: { id: true },
+    });
+  } catch (error) {
+    console.error("Failed to check the entry slug.", error);
+    return actionError("The database is unavailable. Wait a moment and try again.");
+  }
 
   if (existing) {
-    redirect("/admin?error=slug-exists");
+    return actionError("That URL slug already exists. Change the title or slug.");
   }
 
   const savedGalleryImages = await saveUploadedGallery(galleryUploads);
+
+  if (!savedGalleryImages) {
+    return actionError(
+      "One or more images could not be uploaded. Check the file format and try again.",
+    );
+  }
   const safeCoverIndex =
     Number.isFinite(coverIndexInput) &&
     coverIndexInput >= 0 &&
@@ -125,25 +150,30 @@ export async function createEntryAction(formData: FormData) {
     (_image, index) => index !== safeCoverIndex,
   );
 
-  await prisma.entry.create({
-    data: {
-      title,
-      slug,
-      kicker,
-      excerpt,
-      content,
-      coverImage: resolvedCoverImage,
-      galleryImages: JSON.stringify(carouselImages),
-      readMinutes:
-        Number.isFinite(readMinutesInput) && readMinutesInput > 0
-          ? readMinutesInput
-          : estimateReadMinutes(content),
-      featured,
-      section,
-      status,
-      publishedAt: status === "PUBLISHED" ? new Date() : null,
-    },
-  });
+  try {
+    await prisma.entry.create({
+      data: {
+        title,
+        slug,
+        kicker,
+        excerpt,
+        content,
+        coverImage: resolvedCoverImage,
+        galleryImages: JSON.stringify(carouselImages),
+        readMinutes:
+          Number.isFinite(readMinutesInput) && readMinutesInput > 0
+            ? readMinutesInput
+            : estimateReadMinutes(content),
+        featured,
+        section,
+        status,
+        publishedAt: status === "PUBLISHED" ? new Date() : null,
+      },
+    });
+  } catch (error) {
+    console.error("Failed to create an entry.", error);
+    return actionError("The entry could not be saved. Nothing was published; try again.");
+  }
 
   revalidatePath("/");
   revalidatePath("/admin");

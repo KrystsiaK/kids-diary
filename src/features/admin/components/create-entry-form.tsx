@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import {
+  useActionState,
   useEffect,
   useMemo,
   useRef,
@@ -9,7 +10,24 @@ import {
 } from "react";
 import { useFormStatus } from "react-dom";
 
-import { createEntryAction } from "@/features/admin/actions/create-entry";
+import {
+  createEntryAction,
+} from "@/features/admin/actions/create-entry";
+import type { CreateEntryState } from "@/features/admin/actions/create-entry";
+
+const MAX_GALLERY_IMAGES = 24;
+const MAX_TOTAL_UPLOAD_BYTES = 90 * 1024 * 1024;
+const SUPPORTED_IMAGE_TYPES = new Set([
+  "image/jpeg",
+  "image/png",
+  "image/webp",
+  "image/gif",
+  "image/avif",
+]);
+const initialCreateEntryState: CreateEntryState = {
+  status: "idle",
+  message: "",
+};
 
 function SubmitButton() {
   const { pending } = useFormStatus();
@@ -37,11 +55,16 @@ const INPUT_CLS =
   "w-full rounded-2xl border border-white/10 bg-black/20 px-4 py-3 text-sm text-white outline-none placeholder:text-stone-600 transition focus:border-[var(--ring)]/40 focus:ring-2 focus:ring-[var(--ring)]/20";
 
 export function CreateEntryForm() {
+  const [actionState, formAction] = useActionState(
+    createEntryAction,
+    initialCreateEntryState,
+  );
   const [title, setTitle] = useState("");
   const [slug, setSlug] = useState("");
   const [slugTouched, setSlugTouched] = useState(false);
   const [excerptLength, setExcerptLength] = useState(0);
   const [dragOver, setDragOver] = useState(false);
+  const [clientError, setClientError] = useState("");
   const [selectedImages, setSelectedImages] = useState<
     Array<{ id: string; file: File; previewUrl: string }>
   >([]);
@@ -88,8 +111,36 @@ export function CreateEntryForm() {
       return;
     }
 
-    const nextItems = Array.from(files)
-      .filter((file) => file.type.startsWith("image/"))
+    const incomingFiles = Array.from(files);
+    const unsupportedFile = incomingFiles.find(
+      (file) => !SUPPORTED_IMAGE_TYPES.has(file.type),
+    );
+
+    if (unsupportedFile) {
+      setClientError(
+        `“${unsupportedFile.name}” is not supported. Use JPG, PNG, WebP, GIF, or AVIF.`,
+      );
+      return;
+    }
+
+    if (selectedImages.length + incomingFiles.length > MAX_GALLERY_IMAGES) {
+      setClientError(`You can upload up to ${MAX_GALLERY_IMAGES} images per entry.`);
+      return;
+    }
+
+    const totalBytes = [...selectedImages.map((image) => image.file), ...incomingFiles]
+      .reduce((sum, file) => sum + file.size, 0);
+
+    if (totalBytes > MAX_TOTAL_UPLOAD_BYTES) {
+      setClientError(
+        "The selected images exceed 90 MB in total. Remove some files and try again.",
+      );
+      return;
+    }
+
+    setClientError("");
+
+    const nextItems = incomingFiles
       .map((file) => ({
         id: `${file.name}-${file.size}-${crypto.randomUUID()}`,
         file,
@@ -99,6 +150,7 @@ export function CreateEntryForm() {
     setSelectedImages((current) => {
       const updated = [...current, ...nextItems];
       queueMicrotask(() => syncInputFiles(updated));
+      setClientError("");
       return updated;
     });
   }
@@ -141,7 +193,19 @@ export function CreateEntryForm() {
   const activeCover = selectedImages[coverIndex] ?? null;
 
   return (
-    <form action={createEntryAction} className="space-y-4">
+    <form action={formAction} className="space-y-4">
+      {(clientError || actionState.message) && (
+        <div
+          aria-live="assertive"
+          className="rounded-[1.4rem] border border-rose-500/25 bg-rose-500/10 px-5 py-4 text-sm leading-6 text-rose-100"
+          role="alert"
+        >
+          <div className="font-semibold">The entry was not saved</div>
+          <div className="mt-1 text-rose-100/80">
+            {clientError || actionState.message}
+          </div>
+        </div>
+      )}
       <div className="grid gap-4 sm:grid-cols-2">
         <label className="space-y-2">
           <span className="text-sm text-stone-300">Title</span>
