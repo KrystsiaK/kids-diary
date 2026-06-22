@@ -11,16 +11,8 @@ import {
   sectionConfig,
 } from "@/features/content/lib/sections";
 import { prisma } from "@/lib/prisma";
-import { saveUploadedImage } from "@/lib/storage";
 
 const MAX_GALLERY_IMAGES = 24;
-const ALLOWED_IMAGE_TYPES = new Set([
-  "image/jpeg",
-  "image/png",
-  "image/webp",
-  "image/gif",
-  "image/avif",
-]);
 
 export type CreateEntryState = {
   status: "idle" | "error";
@@ -56,25 +48,12 @@ function getFallbackCoverImage(section: EntrySectionValue) {
   }
 }
 
-function isValidUpload(file: File) {
-  return ALLOWED_IMAGE_TYPES.has(file.type);
-}
-
-async function saveUploadedGallery(files: File[]) {
-  const saved = await Promise.allSettled(files.map((file) => saveUploadedImage(file)));
-  const failures = saved.filter((result) => result.status === "rejected");
-
-  failures.forEach((failure) => {
-    console.error("Failed to save an uploaded image.", failure.reason);
-  });
-
-  if (failures.length > 0) {
-    return null;
-  }
-
-  return (saved as PromiseFulfilledResult<string | null>[])
-    .map((r) => r.value)
-    .filter((item): item is string => Boolean(item));
+function isValidStoredImageUrl(value: string) {
+  return (
+    value.startsWith("/api/media/uploads/") &&
+    !value.includes("..") &&
+    !value.includes("\\")
+  );
 }
 
 export async function createEntryAction(
@@ -92,20 +71,21 @@ export async function createEntryAction(
   const featured = formData.get("featured") === "on";
   const readMinutesInput = Number(formData.get("readMinutes") ?? 0);
   const coverIndexInput = Number(formData.get("coverIndex") ?? 0);
-  const galleryUploads = formData
-    .getAll("galleryUploads")
-    .filter((item): item is File => item instanceof File && item.size > 0);
+  const savedGalleryImages = formData
+    .getAll("galleryImageUrls")
+    .map((item) => String(item).trim())
+    .filter(Boolean);
 
   if (!title || !kicker || !excerpt || !content || !isSectionSlug(sectionSlug)) {
     return actionError("Fill in every required field before saving the entry.");
   }
 
-  if (galleryUploads.length > MAX_GALLERY_IMAGES) {
+  if (savedGalleryImages.length > MAX_GALLERY_IMAGES) {
     return actionError("You can upload up to 24 images per entry.");
   }
 
-  if (!galleryUploads.every(isValidUpload)) {
-    return actionError("Use JPG, PNG, WebP, GIF, or AVIF images only.");
+  if (!savedGalleryImages.every(isValidStoredImageUrl)) {
+    return actionError("One or more uploaded image references are invalid.");
   }
 
   const section = sectionConfig[sectionSlug].dbValue;
@@ -131,13 +111,6 @@ export async function createEntryAction(
     return actionError("That URL slug already exists. Change the title or slug.");
   }
 
-  const savedGalleryImages = await saveUploadedGallery(galleryUploads);
-
-  if (!savedGalleryImages) {
-    return actionError(
-      "One or more images could not be uploaded. Check the file format and try again.",
-    );
-  }
   const safeCoverIndex =
     Number.isFinite(coverIndexInput) &&
     coverIndexInput >= 0 &&

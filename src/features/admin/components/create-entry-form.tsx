@@ -16,7 +16,7 @@ import {
 import type { CreateEntryState } from "@/features/admin/actions/create-entry";
 
 const MAX_GALLERY_IMAGES = 24;
-const MAX_TOTAL_UPLOAD_BYTES = 90 * 1024 * 1024;
+const MAX_IMAGE_BYTES = 90 * 1024 * 1024;
 const SUPPORTED_IMAGE_TYPES = new Set([
   "image/jpeg",
   "image/png",
@@ -29,15 +29,24 @@ const initialCreateEntryState: CreateEntryState = {
   message: "",
 };
 
-function SubmitButton() {
+type SelectedImage = {
+  id: string;
+  file: File;
+  previewUrl: string;
+  status: "uploading" | "ready" | "error";
+  uploadedUrl?: string;
+  error?: string;
+};
+
+function SubmitButton({ disabled }: { disabled: boolean }) {
   const { pending } = useFormStatus();
   return (
     <button
       className="w-full rounded-full bg-[var(--accent)] px-5 py-3 text-sm font-semibold text-white transition hover:bg-[color-mix(in_oklab,var(--accent)_82%,white)] disabled:cursor-not-allowed disabled:opacity-50"
-      disabled={pending}
+      disabled={pending || disabled}
       type="submit"
     >
-      {pending ? "Saving…" : "Save entry"}
+      {pending ? "Saving…" : disabled ? "Finish photo uploads first" : "Save entry"}
     </button>
   );
 }
@@ -65,9 +74,7 @@ export function CreateEntryForm() {
   const [excerptLength, setExcerptLength] = useState(0);
   const [dragOver, setDragOver] = useState(false);
   const [clientError, setClientError] = useState("");
-  const [selectedImages, setSelectedImages] = useState<
-    Array<{ id: string; file: File; previewUrl: string }>
-  >([]);
+  const [selectedImages, setSelectedImages] = useState<SelectedImage[]>([]);
   const [coverIndex, setCoverIndex] = useState(0);
   const galleryInputRef = useRef<HTMLInputElement>(null);
   const bodyRef = useRef<HTMLTextAreaElement>(null);
@@ -88,22 +95,59 @@ export function CreateEntryForm() {
     };
   }, []);
 
-  function syncInputFiles(
-    images: Array<{ id: string; file: File; previewUrl: string }>,
-  ) {
-    const input = galleryInputRef.current;
+  async function uploadImage(image: SelectedImage) {
+    try {
+      const response = await fetch("/api/admin/uploads", {
+        method: "POST",
+        body: image.file,
+        headers: {
+          "Content-Type": image.file.type,
+        },
+      });
+      const payload = (await response.json().catch(() => null)) as
+        | { url?: string; error?: string }
+        | null;
 
-    if (!input) {
-      return;
+      if (!response.ok || !payload?.url) {
+        throw new Error(payload?.error || `Upload failed with status ${response.status}.`);
+      }
+
+      setSelectedImages((current) =>
+        current.map((item) =>
+          item.id === image.id
+            ? { ...item, status: "ready", uploadedUrl: payload.url, error: undefined }
+            : item,
+        ),
+      );
+    } catch (error) {
+      const message =
+        error instanceof Error
+          ? error.message
+          : "The image could not be uploaded. Try again.";
+
+      setSelectedImages((current) =>
+        current.map((item) =>
+          item.id === image.id ? { ...item, status: "error", error: message } : item,
+        ),
+      );
     }
+  }
 
-    const dataTransfer = new DataTransfer();
+  async function uploadImages(images: SelectedImage[]) {
+    for (const image of images) {
+      await uploadImage(image);
+    }
+  }
 
-    images.forEach((image) => {
-      dataTransfer.items.add(image.file);
-    });
-
-    input.files = dataTransfer.files;
+  function retryUpload(image: SelectedImage) {
+    setSelectedImages((current) =>
+      current.map((item) =>
+        item.id === image.id
+          ? { ...item, status: "uploading", error: undefined }
+          : item,
+      ),
+    );
+    void uploadImage({ ...image, status: "uploading", error: undefined });
   }
 
   function handleAddFiles(files: FileList | null) {
@@ -128,12 +172,10 @@ export function CreateEntryForm() {
       return;
     }
 
-    const totalBytes = [...selectedImages.map((image) => image.file), ...incomingFiles]
-      .reduce((sum, file) => sum + file.size, 0);
-
-    if (totalBytes > MAX_TOTAL_UPLOAD_BYTES) {
+    const oversizedFile = incomingFiles.find((file) => file.size > MAX_IMAGE_BYTES);
+    if (oversizedFile) {
       setClientError(
-        "The selected images exceed 90 MB in total. Remove some files and try again.",
+        `“${oversizedFile.name}” exceeds the 90 MB per-file limit.`,
       );
       return;
     }
@@ -145,14 +187,15 @@ export function CreateEntryForm() {
         id: `${file.name}-${file.size}-${crypto.randomUUID()}`,
         file,
         previewUrl: URL.createObjectURL(file),
+        status: "uploading" as const,
       }));
 
     setSelectedImages((current) => {
       const updated = [...current, ...nextItems];
-      queueMicrotask(() => syncInputFiles(updated));
       setClientError("");
       return updated;
     });
+    void uploadImages(nextItems);
   }
 
   function removeImage(imageId: string) {
@@ -185,20 +228,23 @@ export function CreateEntryForm() {
         return Math.min(previous, updated.length - 1);
       });
 
-      queueMicrotask(() => syncInputFiles(updated));
       return updated;
     });
   }
 
   const activeCover = selectedImages[coverIndex] ?? null;
+  const uploadsInProgress = selectedImages.some((image) => image.status === "uploading");
+  const uploadErrors = selectedImages.filter((image) => image.status === "error");
+  const formError =
+    clientError ||
+    actionState.message ||
+    (uploadErrors.length > 0
+      ? `${uploadErrors.length} photo${uploadErrors.length === 1 ? "" : "s"} failed to upload. Retry or remove them before saving.`
+      : "");
 
   return (
-    <form
-      action={formAction}
-      className="space-y-4"
-      onSubmit={() => syncInputFiles(selectedImages)}
-    >
-      {(clientError || actionState.message) && (
+    <form action={formAction} className="space-y-4">
+      {formError && (
         <div
           aria-live="assertive"
           className="rounded-[1.4rem] border border-rose-500/25 bg-rose-500/10 px-5 py-4 text-sm leading-6 text-rose-100"
@@ -206,7 +252,7 @@ export function CreateEntryForm() {
         >
           <div className="font-semibold">The entry was not saved</div>
           <div className="mt-1 text-rose-100/80">
-            {clientError || actionState.message}
+            {formError}
           </div>
         </div>
       )}
@@ -368,13 +414,23 @@ export function CreateEntryForm() {
           accept="image/*"
           className="hidden"
           multiple
-          name="galleryUploads"
           onChange={(event) => {
             handleAddFiles(event.target.files);
+            event.target.value = "";
           }}
           ref={galleryInputRef}
           type="file"
         />
+        {selectedImages.map((image) =>
+          image.status === "ready" && image.uploadedUrl ? (
+            <input
+              key={`${image.id}-url`}
+              name="galleryImageUrls"
+              type="hidden"
+              value={image.uploadedUrl}
+            />
+          ) : null,
+        )}
         <input name="coverIndex" type="hidden" value={selectedImages.length > 0 ? coverIndex : 0} />
 
         {selectedImages.length > 0 ? (
@@ -416,6 +472,22 @@ export function CreateEntryForm() {
                     <div className="truncate text-sm text-stone-300">
                       {image.file.name}
                     </div>
+                    <div
+                      aria-live="polite"
+                      className={`text-xs leading-5 ${
+                        image.status === "ready"
+                          ? "text-emerald-300"
+                          : image.status === "error"
+                            ? "text-rose-300"
+                            : "text-amber-300"
+                      }`}
+                    >
+                      {image.status === "ready"
+                        ? "Uploaded"
+                        : image.status === "error"
+                          ? image.error
+                          : "Uploading…"}
+                    </div>
                     <div className="flex gap-2">
                       <button
                         className={`rounded-full px-3 py-2 text-xs font-semibold transition ${
@@ -435,6 +507,15 @@ export function CreateEntryForm() {
                       >
                         Remove
                       </button>
+                      {image.status === "error" && (
+                        <button
+                          className="rounded-full border border-white/10 bg-white/5 px-3 py-2 text-xs font-semibold text-stone-100 transition hover:bg-white/10"
+                          onClick={() => retryUpload(image)}
+                          type="button"
+                        >
+                          Retry
+                        </button>
+                      )}
                     </div>
                   </div>
                 </article>
@@ -479,7 +560,7 @@ export function CreateEntryForm() {
         </label>
       </div>
 
-      <SubmitButton />
+      <SubmitButton disabled={uploadsInProgress || uploadErrors.length > 0} />
     </form>
   );
 }
