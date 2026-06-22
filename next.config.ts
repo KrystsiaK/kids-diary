@@ -19,6 +19,7 @@ if (s3PublicBaseUrl) {
 }
 
 const cspImgSources = ["'self'", "data:", "blob:"];
+const uploadBodySizeLimit = 100 * 1024 * 1024;
 
 if (s3PublicBaseUrl) {
   cspImgSources.push(new URL(s3PublicBaseUrl).origin);
@@ -30,8 +31,9 @@ const nextConfig: NextConfig = {
     remotePatterns: remoteImagePatterns,
   },
   experimental: {
+    proxyClientMaxBodySize: uploadBodySizeLimit,
     serverActions: {
-      bodySizeLimit: "100mb",
+      bodySizeLimit: uploadBodySizeLimit,
       ...(allowedOrigins.length > 0 ? { allowedOrigins } : {}),
     },
   },
