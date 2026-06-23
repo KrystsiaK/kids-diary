@@ -87,6 +87,20 @@ export async function translateEntryToLocale(
   locale: string,
 ) {
   try {
+    await prisma.entryTranslation.upsert({
+      where: { entryId_locale: { entryId: entry.id, locale } },
+      create: {
+        entryId: entry.id,
+        locale,
+        title: entry.title,
+        kicker: entry.kicker,
+        excerpt: entry.excerpt,
+        content: entry.content,
+        status: "PENDING",
+      },
+      update: { status: "PENDING" },
+    });
+
     const translated = await translateFields(
       {
         title: entry.title,
@@ -125,5 +139,7 @@ export async function translateEntryToLocales(
   entry: Pick<ContentEntry, "id" | "title" | "kicker" | "excerpt" | "content">,
   locales: readonly string[],
 ) {
-  await Promise.all(locales.map((locale) => translateEntryToLocale(entry, locale)));
+  for (const locale of locales) {
+    await translateEntryToLocale(entry, locale);
+  }
 }

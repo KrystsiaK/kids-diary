@@ -37,15 +37,15 @@ export async function EntryTranslationStatus({
           >
             {LOCALE_LABELS[locale] ?? locale}
           </span>
-          {status === "FAILED" && (
+          {status !== "READY" && (
             <form action={retryEntryTranslationAction}>
               <input name="entryId" type="hidden" value={entryId} />
               <input name="locale" type="hidden" value={locale} />
               <button
-                className="text-[0.65rem] text-stone-400 underline decoration-stone-600 underline-offset-2 transition hover:text-stone-100"
+                className="cursor-pointer text-[0.65rem] text-stone-400 underline decoration-stone-600 underline-offset-2 transition hover:text-stone-100"
                 type="submit"
               >
-                retry
+                {status === "FAILED" ? "retry" : "run"}
               </button>
             </form>
           )}

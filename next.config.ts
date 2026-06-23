@@ -21,24 +21,26 @@ if (s3PublicBaseUrl) {
 }
 
 const cspImgSources = ["'self'", "data:", "blob:"];
-const cspScriptSources = ["'self'", "'unsafe-inline'", ...(isProduction ? [] : ["'unsafe-eval'"])];
-const cspConnectSources = ["'self'"];
+const cspFontSources = ["'self'", "data:", "https://fonts.gstatic.com"];
+const cspStyleSources = ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"];
+const cspScriptSources = [
+  "'self'",
+  "'unsafe-inline'",
+  "https://www.googletagmanager.com",
+  ...(isProduction ? [] : ["'unsafe-eval'"]),
+];
+const cspConnectSources = [
+  "'self'",
+  "https://www.google-analytics.com",
+  "https://analytics.google.com",
+  "https://region1.google-analytics.com",
+];
 const uploadBodySizeLimit = 100 * 1024 * 1024;
-const isGoogleAnalyticsEnabled = Boolean(process.env.NEXT_PUBLIC_GA_ID?.trim());
 
 if (s3PublicBaseUrl) {
   cspImgSources.push(new URL(s3PublicBaseUrl).origin);
 }
-
-if (isGoogleAnalyticsEnabled) {
-  cspImgSources.push("https://www.google-analytics.com");
-  cspScriptSources.push("https://www.googletagmanager.com");
-  cspConnectSources.push(
-    "https://www.google-analytics.com",
-    "https://analytics.google.com",
-    "https://region1.google-analytics.com",
-  );
-}
+cspImgSources.push("https://www.google-analytics.com");
 
 const nextConfig: NextConfig = {
   poweredByHeader: false,
@@ -86,9 +88,10 @@ const nextConfig: NextConfig = {
               "form-action 'self'",
               "frame-ancestors 'none'",
               `img-src ${cspImgSources.join(" ")}`,
-              "font-src 'self' data:",
-              "style-src 'self' 'unsafe-inline'",
+              `font-src ${cspFontSources.join(" ")}`,
+              `style-src ${cspStyleSources.join(" ")}`,
               `script-src ${cspScriptSources.join(" ")}`,
+              `script-src-elem ${cspScriptSources.join(" ")}`,
               `connect-src ${cspConnectSources.join(" ")}`,
               "object-src 'none'",
             ].join("; "),
