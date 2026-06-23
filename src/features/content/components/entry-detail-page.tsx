@@ -10,6 +10,7 @@ import { formatLongDate } from "@/features/content/lib/formatters";
 import type { ContentEntry, SectionSlug } from "@/features/content/lib/sections";
 import { PublicLayout } from "@/features/marketing/components/public-layout";
 import { Link } from "@/i18n/navigation";
+import { routing } from "@/i18n/routing";
 import { SiteShell } from "@/shared/ui/site-shell";
 import { createCanonicalUrl } from "@/shared/lib/seo";
 
@@ -28,21 +29,36 @@ export async function EntryDetailPage({
   const locale = await getLocale();
   const sectionTitle = t(`nav.${section}`);
   const galleryImages = entry.galleryImages;
-  const articleUrl = createCanonicalUrl(`/${section}/${entry.slug}`);
-  const sectionUrl = createCanonicalUrl(`/${section}`);
+  const articlePathname = `/${section}/${entry.slug}`;
+  const sectionPathname = `/${section}`;
+  const localizedArticlePathname =
+    locale === routing.defaultLocale ? articlePathname : `/${locale}${articlePathname}`;
+  const localizedSectionPathname =
+    locale === routing.defaultLocale ? sectionPathname : `/${locale}${sectionPathname}`;
+  const articleUrl = createCanonicalUrl(localizedArticlePathname);
+  const sectionUrl = createCanonicalUrl(localizedSectionPathname);
+  const wordCount = entry.content.trim().split(/\s+/).filter(Boolean).length;
   const articleJsonLd = {
     "@context": "https://schema.org",
-    "@type": "Article",
+    "@type": "BlogPosting",
     headline: entry.title,
     description: entry.excerpt,
     image: [createCanonicalUrl(entry.coverImage)],
     datePublished: entry.publishedAt?.toISOString(),
     dateModified: entry.updatedAt.toISOString(),
-    mainEntityOfPage: articleUrl,
+    inLanguage: locale,
+    isAccessibleForFree: true,
+    url: articleUrl,
+    mainEntityOfPage: {
+      "@type": "WebPage",
+      "@id": articleUrl,
+    },
     articleSection: sectionTitle,
+    wordCount,
+    timeRequired: `PT${entry.readMinutes}M`,
     author: {
-      "@type": "Organization",
-      name: "Explorer's Journal",
+      "@type": "Person",
+      name: "Arthur",
     },
     publisher: {
       "@type": "Organization",

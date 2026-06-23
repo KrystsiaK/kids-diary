@@ -49,6 +49,7 @@ Recommended Railway setup:
 ```bash
 NEXT_PUBLIC_SITE_URL=https://your-domain.com
 GOOGLE_SITE_VERIFICATION=google-search-console-token
+NEXT_PUBLIC_GA_ID=G-XXXXXXXXXX
 AUTH_SECRET=generate-a-long-random-secret
 ADMIN_PASSWORD=use-a-strong-unique-password
 ANTHROPIC_API_KEY=sk-ant-...
@@ -88,6 +89,9 @@ the S3 API and serve them back through `/api/media/...`.
 `ANTHROPIC_API_KEY` is required for automatic article translations. It must be a
 server-only Railway variable, without a `NEXT_PUBLIC_` prefix.
 
+`NEXT_PUBLIC_GA_ID` is optional. Set it only if Google Analytics should be
+enabled on public pages.
+
 5. Set the Railway pre-deploy command to:
 
 ```bash
@@ -113,7 +117,7 @@ npm run start
 
 1. Point your custom domain at Railway and set `NEXT_PUBLIC_SITE_URL` to that exact HTTPS domain.
 2. Set `GOOGLE_SITE_VERIFICATION` after adding the property in Google Search Console.
-3. Confirm `/robots.txt`, `/sitemap.xml`, `/privacy`, and `/terms` all resolve publicly.
+3. Confirm `/robots.txt`, `/sitemap.xml`, `/opengraph-image`, `/privacy`, and `/terms` all resolve publicly.
 4. Run `npm run db:migrate:deploy` through Railway pre-deploy and verify the first boot can reach PostgreSQL.
 5. Open PageSpeed Insights and Lighthouse against the production home page and one article page to validate LCP, CLS, and INP.
 6. In Search Console, submit the sitemap and inspect at least `/`, one section page, and one article page.

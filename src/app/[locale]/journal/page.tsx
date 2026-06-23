@@ -7,7 +7,14 @@ import { createSectionMetadata } from "@/shared/lib/seo";
 
 export const dynamic = "force-dynamic";
 
-export const metadata: Metadata = createSectionMetadata("journal");
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  return createSectionMetadata("journal", locale);
+}
 
 export default async function JournalPage({
   params,

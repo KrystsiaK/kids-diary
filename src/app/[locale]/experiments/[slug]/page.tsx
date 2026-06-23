@@ -12,10 +12,10 @@ import { createEntryMetadata } from "@/shared/lib/seo";
 export async function generateMetadata({
   params,
 }: {
-  params: Promise<{ slug: string }>;
+  params: Promise<{ locale: string; slug: string }>;
 }): Promise<Metadata> {
-  const { slug } = await params;
-  const entry = await getEntryBySectionAndSlug("experiments", slug);
+  const { locale, slug } = await params;
+  const entry = await getEntryBySectionAndSlug("experiments", slug, locale);
 
   if (!entry) {
     return {
@@ -27,7 +27,7 @@ export async function generateMetadata({
     };
   }
 
-  return createEntryMetadata("experiments", entry);
+  return createEntryMetadata("experiments", entry, locale);
 }
 
 export default async function ExperimentEntryPage({

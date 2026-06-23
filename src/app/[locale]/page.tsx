@@ -6,13 +6,21 @@ import { createPageMetadata } from "@/shared/lib/seo";
 
 export const dynamic = "force-dynamic";
 
-export const metadata: Metadata = createPageMetadata({
-  title: "Home",
-  description:
-    "Explore the latest stories, visual realms, and experiments collected in Explorer's Journal.",
-  pathname: "/",
-  image: "/media/ImageWithFallback.png",
-});
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+
+  return createPageMetadata({
+    title: "Home",
+    description:
+      "Explore the latest stories, visual realms, and experiments collected in Explorer's Journal.",
+    pathname: "/",
+    locale,
+  });
+}
 
 export default async function Home({
   params,

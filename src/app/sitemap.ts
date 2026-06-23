@@ -24,6 +24,10 @@ function withLocaleAlternates(siteUrl: string, pathname: string) {
   );
 }
 
+function getImageUrl(siteUrl: string, image: string) {
+  return new URL(image, siteUrl).toString();
+}
+
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const siteUrl = getSiteUrl();
 
@@ -38,6 +42,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     routing.locales.map((locale) => ({
       url: `${siteUrl}${getLocalizedPathname(pathname, locale)}`,
       lastModified: new Date(),
+      changeFrequency: pathname === "" ? "daily" : "weekly",
+      priority: pathname === "" ? 1 : 0.8,
       alternates: { languages: withLocaleAlternates(siteUrl, pathname) },
     })),
   );
@@ -57,6 +63,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         return routing.locales.map((locale) => ({
           url: `${siteUrl}${getLocalizedPathname(pathname, locale)}`,
           lastModified: entry.updatedAt,
+          changeFrequency: "monthly",
+          priority: 0.7,
+          images: [getImageUrl(siteUrl, entry.coverImage)],
           alternates: { languages: withLocaleAlternates(siteUrl, pathname) },
         }));
       });

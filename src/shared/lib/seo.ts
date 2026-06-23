@@ -9,7 +9,7 @@ export function createCanonicalUrl(pathname: string) {
   return new URL(pathname, getSiteUrl()).toString();
 }
 
-function getLocalizedPathname(pathname: string, locale: string) {
+export function getLocalizedPathname(pathname: string, locale: string) {
   if (locale === routing.defaultLocale) {
     return pathname;
   }
@@ -17,23 +17,38 @@ function getLocalizedPathname(pathname: string, locale: string) {
   return `/${locale}${pathname === "/" ? "" : pathname}`;
 }
 
+function isLocalPathname(pathname: string) {
+  return pathname.startsWith("/");
+}
+
+function createLocalizedCanonicalUrl(pathname: string, locale?: string) {
+  const localizedPathname =
+    locale && isLocalPathname(pathname)
+      ? getLocalizedPathname(pathname, locale)
+      : pathname;
+
+  return createCanonicalUrl(localizedPathname);
+}
+
 export function createPageMetadata({
   title,
   description,
   pathname,
   image,
+  locale,
 }: {
   title: string;
   description: string;
   pathname: string;
   image?: string;
+  locale?: string;
 }): Metadata {
-  const canonical = createCanonicalUrl(pathname);
+  const canonical = createLocalizedCanonicalUrl(pathname, locale);
   const imageUrl = new URL(image ?? siteConfig.ogImage, getSiteUrl()).toString();
   const languages = Object.fromEntries(
     routing.locales.map((locale) => [
       locale,
-      createCanonicalUrl(getLocalizedPathname(pathname, locale)),
+      createLocalizedCanonicalUrl(pathname, locale),
     ]),
   );
 
@@ -50,12 +65,16 @@ export function createPageMetadata({
     openGraph: {
       type: "website",
       url: canonical,
+      locale,
       siteName: siteConfig.name,
       title,
       description,
       images: [
         {
           url: imageUrl,
+          width: image ? undefined : 1200,
+          height: image ? undefined : 630,
+          alt: title,
         },
       ],
     },
@@ -68,19 +87,26 @@ export function createPageMetadata({
   };
 }
 
-export function createSectionMetadata(section: SectionSlug): Metadata {
+export function createSectionMetadata(section: SectionSlug, locale?: string): Metadata {
   const config = getSectionConfig(section);
 
   return createPageMetadata({
     title: config.title,
     description: `${config.headline}. ${config.description}`,
     pathname: `/${section}`,
+    locale,
   });
 }
 
-export function createEntryMetadata(section: SectionSlug, entry: ContentEntry): Metadata {
+export function createEntryMetadata(
+  section: SectionSlug,
+  entry: ContentEntry,
+  locale?: string,
+): Metadata {
   const sectionConfig = getSectionConfig(section);
   const pathname = `/${section}/${entry.slug}`;
+  const canonical = createLocalizedCanonicalUrl(pathname, locale);
+  const imageUrl = new URL(entry.coverImage, getSiteUrl()).toString();
 
   return {
     ...createPageMetadata({
@@ -88,10 +114,12 @@ export function createEntryMetadata(section: SectionSlug, entry: ContentEntry): 
       description: entry.excerpt,
       pathname,
       image: entry.coverImage,
+      locale,
     }),
     openGraph: {
       type: "article",
-      url: createCanonicalUrl(pathname),
+      url: canonical,
+      locale,
       siteName: siteConfig.name,
       title: entry.title,
       description: entry.excerpt,
@@ -100,7 +128,8 @@ export function createEntryMetadata(section: SectionSlug, entry: ContentEntry): 
       section: sectionConfig.title,
       images: [
         {
-          url: new URL(entry.coverImage, getSiteUrl()).toString(),
+          url: imageUrl,
+          alt: entry.title,
         },
       ],
     },

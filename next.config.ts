@@ -22,10 +22,22 @@ if (s3PublicBaseUrl) {
 
 const cspImgSources = ["'self'", "data:", "blob:"];
 const cspScriptSources = ["'self'", "'unsafe-inline'", ...(isProduction ? [] : ["'unsafe-eval'"])];
+const cspConnectSources = ["'self'"];
 const uploadBodySizeLimit = 100 * 1024 * 1024;
+const isGoogleAnalyticsEnabled = Boolean(process.env.NEXT_PUBLIC_GA_ID?.trim());
 
 if (s3PublicBaseUrl) {
   cspImgSources.push(new URL(s3PublicBaseUrl).origin);
+}
+
+if (isGoogleAnalyticsEnabled) {
+  cspImgSources.push("https://www.google-analytics.com");
+  cspScriptSources.push("https://www.googletagmanager.com");
+  cspConnectSources.push(
+    "https://www.google-analytics.com",
+    "https://analytics.google.com",
+    "https://region1.google-analytics.com",
+  );
 }
 
 const nextConfig: NextConfig = {
@@ -77,7 +89,7 @@ const nextConfig: NextConfig = {
               "font-src 'self' data:",
               "style-src 'self' 'unsafe-inline'",
               `script-src ${cspScriptSources.join(" ")}`,
-              "connect-src 'self'",
+              `connect-src ${cspConnectSources.join(" ")}`,
               "object-src 'none'",
             ].join("; "),
           },

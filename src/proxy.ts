@@ -48,6 +48,10 @@ async function verifySessionToken(value: string | undefined): Promise<boolean> {
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
+  if (pathname === "/opengraph-image" || pathname === "/twitter-image") {
+    return NextResponse.next();
+  }
+
   if (pathname.startsWith("/admin")) {
     if (pathname === "/admin/login") {
       return NextResponse.next();

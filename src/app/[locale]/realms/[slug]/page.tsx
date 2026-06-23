@@ -12,10 +12,10 @@ import { createEntryMetadata } from "@/shared/lib/seo";
 export async function generateMetadata({
   params,
 }: {
-  params: Promise<{ slug: string }>;
+  params: Promise<{ locale: string; slug: string }>;
 }): Promise<Metadata> {
-  const { slug } = await params;
-  const entry = await getEntryBySectionAndSlug("realms", slug);
+  const { locale, slug } = await params;
+  const entry = await getEntryBySectionAndSlug("realms", slug, locale);
 
   if (!entry) {
     return {
@@ -27,7 +27,7 @@ export async function generateMetadata({
     };
   }
 
-  return createEntryMetadata("realms", entry);
+  return createEntryMetadata("realms", entry, locale);
 }
 
 export default async function RealmEntryPage({

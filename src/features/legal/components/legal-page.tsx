@@ -23,11 +23,13 @@ export function createLegalMetadata(
   title: string,
   description: string,
   pathname: string,
+  locale?: string,
 ): Metadata {
   return createPageMetadata({
     title,
     description,
     pathname,
+    locale,
   });
 }
 

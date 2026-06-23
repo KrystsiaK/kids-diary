@@ -1,12 +1,22 @@
 import { setRequestLocale } from "next-intl/server";
+import type { Metadata } from "next";
 
 import { createLegalMetadata, LegalPage } from "@/features/legal/components/legal-page";
 
-export const metadata = createLegalMetadata(
-  "Privacy Policy",
-  "How Explorer's Journal handles visitor information, admin access, and uploaded media.",
-  "/privacy",
-);
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+
+  return createLegalMetadata(
+    "Privacy Policy",
+    "How Explorer's Journal handles visitor information, admin access, and uploaded media.",
+    "/privacy",
+    locale,
+  );
+}
 
 export default async function PrivacyPage({
   params,

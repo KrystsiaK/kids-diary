@@ -3,7 +3,7 @@ export const siteConfig = {
   shortName: "Explorer's Journal",
   description:
     "A richly crafted explorer archive of journals, realms, and experiments, with an editorial control room for publishing new stories.",
-  ogImage: "/media/ImageWithFallback.png",
+  ogImage: "/opengraph-image",
 };
 
 export function getSiteUrl() {
