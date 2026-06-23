@@ -5,12 +5,6 @@ export const mainNavigation = [
   { key: "experiments", href: "/experiments" },
 ] as const;
 
-export const heroStats = [
-  { value: "IX", labelKey: "realmsMapped" },
-  { value: "XLII", labelKey: "entriesGathered" },
-  { value: "∞", labelKey: "questionsOpen" },
-] as const;
-
 export const adminSidebar = [
   { label: "Overview", href: "#overview" },
   { label: "Create entry", href: "#create-entry" },

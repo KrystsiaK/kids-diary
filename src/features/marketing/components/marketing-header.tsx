@@ -26,12 +26,12 @@ export function MarketingHeader() {
             href="/"
             onClick={() => setMenuOpen(false)}
           >
-            <div className="max-sm:[&_.brand-tagline]:hidden">
+            <div className="[&_.brand-tagline]:hidden lg:[&_.brand-tagline]:block">
               <BrandMark size="sm" />
             </div>
           </Link>
 
-          <nav aria-label="Primary" className="hidden items-center gap-3 md:flex">
+          <nav aria-label="Primary" className="hidden items-center gap-3 lg:flex">
             {mainNavigation.map((item) => (
               <Link
                 key={item.key}
@@ -51,7 +51,7 @@ export function MarketingHeader() {
           <div className="flex items-center gap-2">
             <LanguageSwitcher />
             <ThemeToggle />
-            <div className="hidden sm:block">
+            <div className="hidden lg:block">
               <PrimaryButton href="/admin" variant="ghost">
                 {t("nav.openAdmin")}
               </PrimaryButton>
@@ -59,7 +59,7 @@ export function MarketingHeader() {
             <button
               aria-expanded={menuOpen}
               aria-label={menuOpen ? t("menu.close") : t("menu.open")}
-              className="inline-flex size-11 items-center justify-center rounded-full border border-[var(--border)] bg-[var(--surface)] text-[var(--foreground)] transition hover:bg-[var(--surface-strong)] md:hidden"
+              className="inline-flex size-11 items-center justify-center rounded-full border border-[var(--border)] bg-[var(--surface)] text-[var(--foreground)] transition hover:bg-[var(--surface-strong)] lg:hidden"
               onClick={() => setMenuOpen((current) => !current)}
               type="button"
             >
@@ -69,7 +69,7 @@ export function MarketingHeader() {
         </div>
 
         {menuOpen && (
-          <div className="absolute inset-x-5 top-full z-50 mt-3 rounded-[1.8rem] border border-[var(--border)] bg-[color-mix(in_oklab,var(--background)_96%,transparent)] p-3 shadow-[0_20px_60px_rgba(0,0,0,0.3)] sm:inset-x-8 md:hidden">
+          <div className="absolute inset-x-5 top-full z-50 mt-3 rounded-[1.8rem] border border-[var(--border)] bg-[color-mix(in_oklab,var(--background)_96%,transparent)] p-3 shadow-[0_20px_60px_rgba(0,0,0,0.3)] sm:inset-x-8 lg:hidden">
             <nav aria-label="Mobile primary" className="grid gap-2">
               {mainNavigation.map((item) => (
                 <Link
@@ -87,7 +87,7 @@ export function MarketingHeader() {
               ))}
             </nav>
 
-            <div className="mt-3 sm:hidden">
+            <div className="mt-3 lg:hidden">
               <PrimaryButton href="/admin" variant="ghost">
                 {t("nav.openAdmin")}
               </PrimaryButton>

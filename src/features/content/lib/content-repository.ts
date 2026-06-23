@@ -180,6 +180,34 @@ export const getHomeContent = cache(async (locale?: string) => {
   return { journalEntries, realmEntries, experimentEntries };
 });
 
+export const getHeroStats = cache(async () => {
+  try {
+    await ensureSeedContent();
+
+    const [realmsMapped, entriesGathered, questionsOpen] = await Promise.all([
+      prisma.entry.count({ where: { section: "REALMS", status: "PUBLISHED" } }),
+      prisma.entry.count({ where: { status: "PUBLISHED" } }),
+      prisma.entry.count({ where: { section: "EXPERIMENTS", status: "PUBLISHED" } }),
+    ]);
+
+    return { realmsMapped, entriesGathered, questionsOpen };
+  } catch (error) {
+    if (isDatabaseUnavailableError(error)) {
+      const publishedEntries = getStarterEntries().filter(
+        (entry) => entry.status === "PUBLISHED",
+      );
+
+      return {
+        realmsMapped: publishedEntries.filter((entry) => entry.section === "REALMS").length,
+        entriesGathered: publishedEntries.length,
+        questionsOpen: publishedEntries.filter((entry) => entry.section === "EXPERIMENTS").length,
+      };
+    }
+
+    throw error;
+  }
+});
+
 export const getEntriesForSection = cache(async (section: SectionSlug, locale?: string) => {
   const dbSection = getSectionConfig(section).dbValue;
   const entries = await getPublishedEntriesByDbSection(dbSection);

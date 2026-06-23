@@ -27,11 +27,12 @@ export async function SectionEntryGrid({
     return (
       <div className="grid gap-6 lg:grid-cols-2">
         {entries.map((entry, index) => (
-          <article
+          <Link
             key={entry.id}
-            className={`group relative flex min-h-[20rem] items-end overflow-hidden rounded-[2rem] border border-white/8 bg-black/20 ${
+            className={`group relative flex min-h-[20rem] items-end overflow-hidden rounded-[2rem] border border-white/8 bg-black/20 transition hover:-translate-y-1 hover:border-white/18 ${
               index === 0 ? "lg:row-span-2 lg:min-h-[32rem]" : ""
             }`}
+            href={getEntryHref(section, entry.slug)}
           >
             <Image
               alt={entry.title}
@@ -46,13 +47,13 @@ export async function SectionEntryGrid({
                 {entry.kicker}
               </div>
               <h3 className="mt-3 font-display text-3xl text-white sm:text-4xl">
-                <Link href={getEntryHref(section, entry.slug)}>{entry.title}</Link>
+                {entry.title}
               </h3>
               <p className="mt-3 max-w-md text-sm leading-7 text-stone-200/85">
                 {entry.excerpt}
               </p>
             </div>
-          </article>
+          </Link>
         ))}
       </div>
     );
@@ -62,33 +63,34 @@ export async function SectionEntryGrid({
     return (
       <div className="space-y-4">
         {entries.map((entry) => (
-          <article
+          <Link
             key={entry.id}
-            className="grid grid-cols-[auto_1fr_auto] items-center gap-4 rounded-[1.5rem] border border-[var(--border)] bg-[var(--surface)] p-5 transition hover:bg-[var(--surface-strong)]"
+            className="grid grid-cols-[auto_1fr_auto] items-center gap-4 rounded-[1.5rem] border border-[var(--border)] bg-[var(--surface)] p-5 transition hover:-translate-y-0.5 hover:bg-[var(--surface-strong)]"
+            href={getEntryHref(section, entry.slug)}
           >
             <div className="overflow-hidden rounded-2xl">
-            <Image
-              alt={entry.title}
-              className="size-14 object-cover"
-              height={56}
-              sizes="56px"
-              src={entry.coverImage}
-              width={56}
-            />
+              <Image
+                alt={entry.title}
+                className="size-14 object-cover"
+                height={56}
+                sizes="56px"
+                src={entry.coverImage}
+                width={56}
+              />
             </div>
             <div>
               <div className="text-xs uppercase tracking-[0.18em] text-[var(--muted)]">
                 {entry.kicker}
               </div>
               <h3 className="mt-1 text-lg font-semibold text-[var(--foreground)]">
-                <Link href={getEntryHref(section, entry.slug)}>{entry.title}</Link>
+                {entry.title}
               </h3>
               <p className="mt-1 text-sm leading-6 text-[var(--muted)]">
                 {entry.excerpt}
               </p>
             </div>
             <div className="text-[var(--muted)]">→</div>
-          </article>
+          </Link>
         ))}
       </div>
     );
@@ -97,9 +99,10 @@ export async function SectionEntryGrid({
   return (
     <div className="grid gap-6">
       {entries.map((entry) => (
-        <article
+        <Link
           key={entry.id}
-          className="grid gap-6 overflow-hidden rounded-[1.8rem] border border-[var(--border)] bg-[var(--surface)] p-4 shadow-[0_20px_50px_rgba(0,0,0,0.18)] transition hover:-translate-y-1 hover:border-[var(--ring)] hover:bg-[var(--surface-strong)] sm:p-6 lg:grid-cols-[320px_1fr]"
+          className="grid gap-6 overflow-hidden rounded-[1.8rem] border border-[var(--border)] bg-[var(--surface)] p-4 shadow-[0_20px_50px_rgba(0,0,0,0.18)] transition hover:-translate-y-1 hover:border-[var(--ring)] hover:bg-[var(--surface-strong)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--background)] sm:p-6 lg:grid-cols-[320px_1fr]"
+          href={getEntryHref(section, entry.slug)}
         >
           <div className="relative overflow-hidden rounded-[1.2rem]">
             <Image
@@ -120,18 +123,18 @@ export async function SectionEntryGrid({
                 {t("minRead", { count: entry.readMinutes })} · {formatShortDate(entry.publishedAt)}
               </div>
               <h3 className="font-display text-3xl text-[var(--foreground)]">
-                <Link href={getEntryHref(section, entry.slug)}>{entry.title}</Link>
+                {entry.title}
               </h3>
               <p className="mt-3 max-w-xl text-base leading-7 text-[var(--muted)]">
                 {entry.excerpt}
               </p>
             </div>
             <div className="flex items-center justify-between border-t border-[var(--border)] pt-4 text-sm text-[var(--muted)]">
-              <Link href={getEntryHref(section, entry.slug)}>{t("readEntry")}</Link>
+              <span>{t("readEntry")}</span>
               <span aria-hidden="true">→</span>
             </div>
           </div>
-        </article>
+        </Link>
       ))}
     </div>
   );

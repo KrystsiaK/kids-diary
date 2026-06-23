@@ -71,11 +71,33 @@
 
   a {
     color: inherit;
+    cursor: pointer !important;
     text-decoration: none;
   }
 
   button {
+    cursor: pointer !important;
     font: inherit;
+  }
+
+  button:disabled,
+  [aria-disabled="true"] {
+    cursor: not-allowed !important;
+  }
+
+  :where(
+      [role="button"],
+      summary,
+      label,
+      select,
+      input[type="button"],
+      input[type="checkbox"],
+      input[type="file"],
+      input[type="radio"],
+      input[type="reset"],
+      input[type="submit"]
+    ) {
+    cursor: pointer !important;
   }
 
   img {

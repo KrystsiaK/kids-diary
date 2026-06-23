@@ -1,14 +1,54 @@
 import Image from "next/image";
 import { getTranslations } from "next-intl/server";
 
-import { heroStats } from "@/shared/config/site-content";
+import { getHeroStats } from "@/features/content/lib/content-repository";
 import { CompassIcon, EyeIcon, SparkIcon } from "@/shared/icons/site-icons";
 import { PrimaryButton } from "@/shared/ui/primary-button";
 import { Reveal, RevealGroup, RevealItem } from "@/shared/ui/reveal";
 import { SiteShell } from "@/shared/ui/site-shell";
 
+function formatRomanNumeral(value: number) {
+  if (!Number.isInteger(value) || value < 1 || value > 3999) {
+    return value.toLocaleString("en");
+  }
+
+  const numerals = [
+    ["M", 1000],
+    ["CM", 900],
+    ["D", 500],
+    ["CD", 400],
+    ["C", 100],
+    ["XC", 90],
+    ["L", 50],
+    ["XL", 40],
+    ["X", 10],
+    ["IX", 9],
+    ["V", 5],
+    ["IV", 4],
+    ["I", 1],
+  ] as const;
+
+  let remaining = value;
+  let result = "";
+
+  for (const [numeral, amount] of numerals) {
+    while (remaining >= amount) {
+      result += numeral;
+      remaining -= amount;
+    }
+  }
+
+  return result;
+}
+
 export async function HeroSection() {
   const t = await getTranslations();
+  const stats = await getHeroStats();
+  const heroStats = [
+    { value: formatRomanNumeral(stats.realmsMapped), labelKey: "realmsMapped" },
+    { value: formatRomanNumeral(stats.entriesGathered), labelKey: "entriesGathered" },
+    { value: formatRomanNumeral(stats.questionsOpen), labelKey: "questionsOpen" },
+  ] as const;
 
   return (
     <section className="pb-20 pt-14 sm:pt-20">
@@ -44,11 +84,13 @@ export async function HeroSection() {
               </div>
             </RevealItem>
             <RevealItem>
-              <div className="grid gap-4 border-t border-[var(--border)] pt-6 sm:grid-cols-3">
+              <div className="flex items-start justify-between gap-2 border-t border-[var(--border)] pt-6 text-center">
                 {heroStats.map((stat) => (
-                  <div key={stat.labelKey}>
-                    <div className="font-display text-4xl text-[var(--foreground)]">{stat.value}</div>
-                    <div className="mt-2 text-xs uppercase tracking-[0.2em] text-[var(--muted)]">
+                  <div key={stat.labelKey} className="min-w-0 flex-1">
+                    <div className="font-display text-3xl leading-none text-[var(--foreground)] sm:text-4xl">
+                      {stat.value}
+                    </div>
+                    <div className="mt-2 text-[0.58rem] uppercase leading-tight tracking-[0.12em] text-[var(--muted)] sm:text-xs sm:tracking-[0.2em]">
                       {t(`stats.${stat.labelKey}`)}
                     </div>
                   </div>
