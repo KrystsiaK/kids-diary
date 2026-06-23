@@ -1,4 +1,5 @@
 import { isAdminAuthenticated } from "@/features/admin/lib/admin-auth";
+import { requireSameOriginRequest } from "@/lib/request-security";
 import { saveUploadedImage } from "@/lib/storage";
 
 export const dynamic = "force-dynamic";
@@ -18,12 +19,8 @@ export async function POST(request: Request) {
     return Response.json({ error: "Your admin session has expired." }, { status: 401 });
   }
 
-  const origin = request.headers.get("origin");
-  const forwardedHost = request.headers.get("x-forwarded-host")?.split(",", 1)[0]?.trim();
-  const requestHost = forwardedHost || request.headers.get("host");
-  const originHost = origin ? new URL(origin).host : null;
-
-  if (originHost && (!requestHost || originHost !== requestHost)) {
+  const originCheck = requireSameOriginRequest(request);
+  if (!originCheck.ok) {
     return Response.json({ error: "Upload origin was rejected." }, { status: 403 });
   }
 

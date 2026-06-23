@@ -1,8 +1,21 @@
 import { CORE_TARGET_LOCALES, translateEntryToLocale } from "@/features/content/lib/translate-entry";
+import {
+  consumeGlobalDailyLimit,
+  consumeRateLimit,
+  getClientIp,
+  readJsonBodyWithLimit,
+  RequestBodyError,
+  requireSameOriginRequest,
+} from "@/lib/request-security";
 import { prisma } from "@/lib/prisma";
 
 export const dynamic = "force-dynamic";
 
+const MAX_TRANSLATE_BODY_BYTES = 4 * 1024;
+const TRANSLATE_WINDOW_MS = 10 * 60 * 1000;
+const TRANSLATE_WINDOW_LIMIT = 12;
+const TRANSLATE_DAILY_LIMIT = 50;
+const GLOBAL_DAILY_TRANSLATION_LIMIT = 250;
 const LOCALE_PATTERN = /^[a-z]{2,3}(-[A-Z]{2})?$/;
 
 function isValidLocale(locale: string) {
@@ -19,20 +32,30 @@ function isValidLocale(locale: string) {
 }
 
 export async function POST(request: Request) {
-  const origin = request.headers.get("origin");
-  const forwardedHost = request.headers.get("x-forwarded-host")?.split(",", 1)[0]?.trim();
-  const requestHost = forwardedHost || request.headers.get("host");
-  const originHost = origin ? new URL(origin).host : null;
+  const originCheck = requireSameOriginRequest(request);
+  if (!originCheck.ok) {
+    return Response.json({ error: originCheck.error }, { status: originCheck.status });
+  }
 
-  if (originHost && (!requestHost || originHost !== requestHost)) {
-    return Response.json({ error: "Request origin was rejected." }, { status: 403 });
+  const ip = getClientIp(request);
+  if (
+    !consumeRateLimit(`translate:${ip}`, {
+      windowMs: TRANSLATE_WINDOW_MS,
+      windowLimit: TRANSLATE_WINDOW_LIMIT,
+      dailyLimit: TRANSLATE_DAILY_LIMIT,
+    })
+  ) {
+    return Response.json({ error: "Too many translation requests." }, { status: 429 });
   }
 
   let body: { entryId?: unknown; locale?: unknown };
 
   try {
-    body = await request.json();
-  } catch {
+    body = await readJsonBodyWithLimit(request, MAX_TRANSLATE_BODY_BYTES);
+  } catch (error) {
+    if (error instanceof RequestBodyError) {
+      return Response.json({ error: error.message }, { status: error.status });
+    }
     return Response.json({ error: "Invalid request body." }, { status: 400 });
   }
 
@@ -66,6 +89,13 @@ export async function POST(request: Request) {
 
   if (!entry) {
     return Response.json({ error: "Entry not found." }, { status: 404 });
+  }
+
+  if (!consumeGlobalDailyLimit("entry-translation-llm-calls", GLOBAL_DAILY_TRANSLATION_LIMIT)) {
+    return Response.json(
+      { error: "Translation is temporarily unavailable. Try again later." },
+      { status: 429 },
+    );
   }
 
   const translation = await translateEntryToLocale(entry, locale);

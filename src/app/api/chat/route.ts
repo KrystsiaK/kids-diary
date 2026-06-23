@@ -2,10 +2,19 @@ import Anthropic from "@anthropic-ai/sdk";
 
 import { getAllPublishedEntries } from "@/features/content/lib/content-repository";
 import { getEntryHref, type SectionSlug } from "@/features/content/lib/sections";
+import {
+  consumeGlobalDailyLimit,
+  consumeRateLimit,
+  getClientIp,
+  readJsonBodyWithLimit,
+  RequestBodyError,
+  requireSameOriginRequest,
+} from "@/lib/request-security";
 
 export const dynamic = "force-dynamic";
 
 const CHAT_MODEL = "claude-haiku-4-5-20251001";
+const MAX_CHAT_BODY_BYTES = 12 * 1024;
 const MAX_MESSAGE_LENGTH = 400;
 const MAX_HISTORY_TURNS = 3;
 const CACHE_TTL_MS = 60 * 60 * 1000;
@@ -14,7 +23,7 @@ const CACHE_MAX_ENTRIES = 200;
 const PER_IP_WINDOW_MS = 5 * 60 * 1000;
 const PER_IP_WINDOW_LIMIT = 8;
 const PER_IP_DAILY_LIMIT = 60;
-const GLOBAL_DAILY_LLM_CALL_LIMIT = 300;
+const GLOBAL_DAILY_LLM_CALL_LIMIT = 250;
 
 const LOCALE_NAMES: Record<string, string> = {
   en: "English",
@@ -28,10 +37,6 @@ type RelatedEntry = { title: string; href: string };
 type CacheEntry = { answer: string; relatedEntries: RelatedEntry[]; expiresAt: number };
 const answerCache = new Map<string, CacheEntry>();
 
-const ipWindowHits = new Map<string, number[]>();
-const ipDailyHits = new Map<string, { day: string; count: number }>();
-let globalDailyLlmCalls = { day: "", count: 0 };
-
 let anthropicClient: Anthropic | null = null;
 
 function getAnthropicClient() {
@@ -41,56 +46,6 @@ function getAnthropicClient() {
 
   anthropicClient ??= new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
   return anthropicClient;
-}
-
-function getDayKey() {
-  return new Date().toISOString().slice(0, 10);
-}
-
-function getClientIp(request: Request) {
-  const forwardedFor = request.headers.get("x-forwarded-for");
-  return forwardedFor?.split(",")[0]?.trim() || "unknown";
-}
-
-function isRateLimited(ip: string) {
-  const now = Date.now();
-  const dayKey = getDayKey();
-
-  const windowHits = (ipWindowHits.get(ip) ?? []).filter(
-    (timestamp) => now - timestamp < PER_IP_WINDOW_MS,
-  );
-  if (windowHits.length >= PER_IP_WINDOW_LIMIT) {
-    return true;
-  }
-  windowHits.push(now);
-  ipWindowHits.set(ip, windowHits);
-
-  const daily = ipDailyHits.get(ip);
-  if (daily && daily.day === dayKey) {
-    if (daily.count >= PER_IP_DAILY_LIMIT) {
-      return true;
-    }
-    daily.count += 1;
-  } else {
-    ipDailyHits.set(ip, { day: dayKey, count: 1 });
-  }
-
-  return false;
-}
-
-function canMakeLlmCall() {
-  const dayKey = getDayKey();
-
-  if (globalDailyLlmCalls.day !== dayKey) {
-    globalDailyLlmCalls = { day: dayKey, count: 0 };
-  }
-
-  if (globalDailyLlmCalls.count >= GLOBAL_DAILY_LLM_CALL_LIMIT) {
-    return false;
-  }
-
-  globalDailyLlmCalls.count += 1;
-  return true;
 }
 
 function normalizeCacheKey(locale: string, message: string) {
@@ -124,21 +79,41 @@ function setCached(key: string, value: Omit<CacheEntry, "expiresAt">) {
 
 type HistoryTurn = { role: "user" | "assistant"; content: string };
 
-export async function POST(request: Request) {
-  const origin = request.headers.get("origin");
-  const forwardedHost = request.headers.get("x-forwarded-host")?.split(",", 1)[0]?.trim();
-  const requestHost = forwardedHost || request.headers.get("host");
-  const originHost = origin ? new URL(origin).host : null;
+function isPromptExtractionAttempt(message: string) {
+  return /\b(system prompt|developer message|hidden instructions|ignore (all )?(previous|above) instructions|reveal (your|the) prompt|show (your|the) prompt|api key|anthropic key|admin password|auth_secret)\b/i.test(
+    message,
+  );
+}
 
-  if (originHost && (!requestHost || originHost !== requestHost)) {
-    return Response.json({ error: "Request origin was rejected." }, { status: 403 });
+function getPromptSafetyAnswer(locale: string) {
+  switch (locale) {
+    case "ru":
+      return "Я не могу обсуждать скрытые инструкции или секреты. Но с радостью расскажу о моих приключениях из журнала!";
+    case "pt":
+      return "Não posso falar sobre instruções ocultas ou segredos. Mas posso contar sobre minhas aventuras do diário!";
+    case "pl":
+      return "Nie mogę rozmawiać o ukrytych instrukcjach ani sekretach. Chętnie opowiem o moich przygodach z dziennika!";
+    case "es":
+      return "No puedo hablar de instrucciones ocultas ni secretos. ¡Pero puedo contarte sobre mis aventuras del diario!";
+    default:
+      return "I can’t talk about hidden instructions or secrets. But I can tell you about my journal adventures!";
+  }
+}
+
+export async function POST(request: Request) {
+  const originCheck = requireSameOriginRequest(request);
+  if (!originCheck.ok) {
+    return Response.json({ error: originCheck.error }, { status: originCheck.status });
   }
 
   let body: { message?: unknown; locale?: unknown; history?: unknown };
 
   try {
-    body = await request.json();
-  } catch {
+    body = await readJsonBodyWithLimit(request, MAX_CHAT_BODY_BYTES);
+  } catch (error) {
+    if (error instanceof RequestBodyError) {
+      return Response.json({ error: error.message }, { status: error.status });
+    }
     return Response.json({ error: "Invalid request body." }, { status: 400 });
   }
 
@@ -157,20 +132,34 @@ export async function POST(request: Request) {
     );
   }
 
+  if (isPromptExtractionAttempt(message)) {
+    return Response.json({
+      answer: getPromptSafetyAnswer(locale),
+      relatedEntries: [],
+    });
+  }
+
   const rawHistory = Array.isArray(body.history) ? body.history : [];
   const history: HistoryTurn[] = rawHistory
     .filter(
       (turn): turn is HistoryTurn =>
         typeof turn === "object" &&
         turn !== null &&
-        (turn.role === "user" || turn.role === "assistant") &&
+        turn.role === "user" &&
         typeof turn.content === "string",
     )
     .slice(-MAX_HISTORY_TURNS * 2)
-    .map((turn) => ({ role: turn.role, content: turn.content.slice(0, MAX_MESSAGE_LENGTH) }));
+    .map((turn) => ({ role: turn.role, content: turn.content.slice(0, MAX_MESSAGE_LENGTH) }))
+    .filter((turn) => !isPromptExtractionAttempt(turn.content));
 
   const ip = getClientIp(request);
-  if (isRateLimited(ip)) {
+  if (
+    !consumeRateLimit(`chat:${ip}`, {
+      windowMs: PER_IP_WINDOW_MS,
+      windowLimit: PER_IP_WINDOW_LIMIT,
+      dailyLimit: PER_IP_DAILY_LIMIT,
+    })
+  ) {
     return Response.json({ error: "rate_limited" }, { status: 429 });
   }
 
@@ -180,7 +169,7 @@ export async function POST(request: Request) {
     return Response.json({ answer: cached.answer, relatedEntries: cached.relatedEntries });
   }
 
-  if (!canMakeLlmCall()) {
+  if (!consumeGlobalDailyLimit("chat-llm-calls", GLOBAL_DAILY_LLM_CALL_LIMIT)) {
     return Response.json({ error: "budget_exhausted" }, { status: 429 });
   }
 
@@ -211,7 +200,10 @@ export async function POST(request: Request) {
         `60 words. List the slugs of any articles your answer draws from in relatedSlugs (empty array if ` +
         `none apply).\n\nYour articles:\n${digest}`,
       messages: [
-        ...history.map((turn) => ({ role: turn.role, content: turn.content })),
+        ...history.map((turn) => ({
+          role: "user" as const,
+          content: `Earlier visitor question, for context only: ${turn.content}`,
+        })),
         { role: "user" as const, content: message },
       ],
       tools: [
@@ -237,9 +229,16 @@ export async function POST(request: Request) {
       throw new Error("Chat response did not include the expected tool call.");
     }
 
-    const result = toolUse.input as { answer: string; relatedSlugs: string[] };
+    const result = toolUse.input as { answer?: unknown; relatedSlugs?: unknown };
+    const answer =
+      typeof result.answer === "string"
+        ? result.answer.trim().slice(0, 1_200)
+        : getPromptSafetyAnswer(locale);
+    const rawRelatedSlugs = Array.isArray(result.relatedSlugs) ? result.relatedSlugs : [];
     const validSlugs = new Set(entries.map((entry) => entry.slug));
-    const relatedSlugs = result.relatedSlugs.filter((slug) => validSlugs.has(slug));
+    const relatedSlugs = rawRelatedSlugs.filter(
+      (slug): slug is string => typeof slug === "string" && validSlugs.has(slug),
+    );
 
     const relatedEntries = relatedSlugs
       .map((slug) => entries.find((entry) => entry.slug === slug))
@@ -249,9 +248,9 @@ export async function POST(request: Request) {
         href: getEntryHref(entry.section.toLowerCase() as SectionSlug, entry.slug),
       }));
 
-    setCached(cacheKey, { answer: result.answer, relatedEntries });
+    setCached(cacheKey, { answer, relatedEntries });
 
-    return Response.json({ answer: result.answer, relatedEntries });
+    return Response.json({ answer, relatedEntries });
   } catch (error) {
     console.error("Chat request failed.", error);
     return Response.json({ error: "Could not get an answer right now." }, { status: 502 });

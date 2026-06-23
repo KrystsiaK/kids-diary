@@ -8,6 +8,7 @@ const allowedOrigins = (process.env.SERVER_ACTIONS_ALLOWED_ORIGINS ?? "")
 
 const s3PublicBaseUrl = process.env.S3_PUBLIC_BASE_URL?.trim();
 const remoteImagePatterns = [];
+const isProduction = process.env.NODE_ENV === "production";
 
 if (s3PublicBaseUrl) {
   const url = new URL(s3PublicBaseUrl);
@@ -20,6 +21,7 @@ if (s3PublicBaseUrl) {
 }
 
 const cspImgSources = ["'self'", "data:", "blob:"];
+const cspScriptSources = ["'self'", "'unsafe-inline'", ...(isProduction ? [] : ["'unsafe-eval'"])];
 const uploadBodySizeLimit = 100 * 1024 * 1024;
 
 if (s3PublicBaseUrl) {
@@ -74,7 +76,7 @@ const nextConfig: NextConfig = {
               `img-src ${cspImgSources.join(" ")}`,
               "font-src 'self' data:",
               "style-src 'self' 'unsafe-inline'",
-              "script-src 'self' 'unsafe-inline' 'unsafe-eval'",
+              `script-src ${cspScriptSources.join(" ")}`,
               "connect-src 'self'",
               "object-src 'none'",
             ].join("; "),
