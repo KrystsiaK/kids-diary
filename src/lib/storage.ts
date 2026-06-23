@@ -10,6 +10,7 @@ import {
   S3Client,
 } from "@aws-sdk/client-s3";
 import { fileTypeFromBuffer } from "file-type";
+import sharp from "sharp";
 
 import { getUploadsConfig } from "@/lib/uploads";
 
@@ -28,6 +29,39 @@ const MIME_TO_EXTENSION: Record<string, string> = {
   "image/gif": ".gif",
   "image/avif": ".avif",
 };
+
+// Camera/phone photos can land at 4000px+ and 20MB+. Animated GIFs are passed through
+// untouched (re-encoding would risk losing the animation); everything else is downscaled
+// and re-encoded to WebP, which also strips EXIF (GPS included — this is a kids' diary).
+const MAX_IMAGE_DIMENSION = 2400;
+const WEBP_QUALITY = 82;
+
+async function optimizeImage(
+  bytes: Buffer,
+  mime: string,
+): Promise<{ bytes: Buffer; mime: string }> {
+  if (mime === "image/gif") {
+    return { bytes, mime };
+  }
+
+  try {
+    const optimized = await sharp(bytes, { failOn: "none" })
+      .rotate()
+      .resize({
+        width: MAX_IMAGE_DIMENSION,
+        height: MAX_IMAGE_DIMENSION,
+        fit: "inside",
+        withoutEnlargement: true,
+      })
+      .webp({ quality: WEBP_QUALITY })
+      .toBuffer();
+
+    return { bytes: optimized, mime: "image/webp" };
+  } catch (error) {
+    console.error("Image optimization failed; storing the original upload instead.", error);
+    return { bytes, mime };
+  }
+}
 
 export type StorageMode = "local" | "s3";
 
@@ -177,13 +211,14 @@ export async function saveUploadedImage(file: File) {
     return null;
   }
 
-  const bytes = Buffer.from(await file.arrayBuffer());
-  const detectedMime = await validateImageMime(bytes);
-  const safeFilename = buildSafeFilename(detectedMime);
+  const rawBytes = Buffer.from(await file.arrayBuffer());
+  const detectedMime = await validateImageMime(rawBytes);
+  const { bytes, mime } = await optimizeImage(rawBytes, detectedMime);
+  const safeFilename = buildSafeFilename(mime);
 
   const input: SaveImageInput = {
     bytes,
-    contentType: detectedMime,
+    contentType: mime,
     safeFilename,
   };
 
