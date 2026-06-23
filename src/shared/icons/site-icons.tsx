@@ -169,3 +169,13 @@ export function CloseIcon(props: IconProps) {
     </svg>
   );
 }
+
+export function ChatBubbleIcon(props: IconProps) {
+  return (
+    <svg {...base} {...props}>
+      <path d="M4 5.5h16v10H10.5L6 19v-3.5H4v-10Z" />
+      <path d="M8 9.5h8" />
+      <path d="M8 12.5h5" />
+    </svg>
+  );
+}

@@ -140,5 +140,22 @@
     "loading": "Translating…",
     "dismiss": "No thanks",
     "error": "Couldn't translate this article. Try again later."
+  },
+  "chat": {
+    "openLabel": "Talk to Arthur",
+    "name": "Arthur",
+    "title": "Your journal guide",
+    "avatarAlt": "Arthur, the journal guide",
+    "greeting": "Hi, I’m Arthur!",
+    "launcherHint": "Want to ask Arthur?",
+    "placeholder": "Ask Arthur about an article…",
+    "send": "Send",
+    "empty": "Ask me about my published adventures, places, or experiments.",
+    "thinking": "Arthur is thinking…",
+    "rateLimited": "You've sent a lot of messages — please wait a few minutes and try again.",
+    "budgetExhausted": "Arthur has reached his daily chat limit. Please try again tomorrow.",
+    "error": "Something went wrong. Please try again.",
+    "relatedLabel": "Related:",
+    "close": "Close chat"
   }
 }

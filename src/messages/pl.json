@@ -140,5 +140,22 @@
     "loading": "Tłumaczę…",
     "dismiss": "Nie, dzięki",
     "error": "Nie udało się przetłumaczyć artykułu. Spróbuj ponownie później."
+  },
+  "chat": {
+    "openLabel": "Porozmawiaj z Arthurem",
+    "name": "Arthur",
+    "title": "Przewodnik po dzienniku",
+    "avatarAlt": "Arthur, przewodnik po dzienniku",
+    "greeting": "Cześć, jestem Arthur!",
+    "launcherHint": "Chcesz zapytać Arthura?",
+    "placeholder": "Zapytaj Arthura o artykuł…",
+    "send": "Wyślij",
+    "empty": "Zapytaj mnie o moje opublikowane przygody, miejsca albo eksperymenty.",
+    "thinking": "Arthur myśli…",
+    "rateLimited": "Wysłałeś dużo wiadomości — poczekaj kilka minut i spróbuj ponownie.",
+    "budgetExhausted": "Arthur osiągnął dzienny limit czatu. Spróbuj ponownie jutro.",
+    "error": "Coś poszło nie tak. Spróbuj ponownie.",
+    "relatedLabel": "Powiązane:",
+    "close": "Zamknij czat"
   }
 }

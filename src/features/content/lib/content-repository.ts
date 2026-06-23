@@ -208,6 +208,28 @@ export const getHeroStats = cache(async () => {
   }
 });
 
+export const getAllPublishedEntries = cache(async (locale?: string) => {
+  try {
+    await ensureSeedContent();
+
+    const entries = await prisma.entry.findMany({
+      where: { status: "PUBLISHED" },
+      orderBy: [{ publishedAt: "desc" }, { createdAt: "desc" }],
+    });
+
+    return applyLocale(entries.map(normalizeEntry), locale);
+  } catch (error) {
+    if (isDatabaseUnavailableError(error)) {
+      return applyLocale(
+        getStarterEntries().filter((entry) => entry.status === "PUBLISHED"),
+        locale,
+      );
+    }
+
+    throw error;
+  }
+});
+
 export const getEntriesForSection = cache(async (section: SectionSlug, locale?: string) => {
   const dbSection = getSectionConfig(section).dbValue;
   const entries = await getPublishedEntriesByDbSection(dbSection);

@@ -1,7 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import { Link, usePathname } from "@/i18n/navigation";
 import { mainNavigation } from "@/shared/config/site-content";
@@ -16,9 +16,51 @@ export function MarketingHeader() {
   const t = useTranslations();
   const pathname = usePathname();
   const [menuOpen, setMenuOpen] = useState(false);
+  const [headerHidden, setHeaderHidden] = useState(false);
+  const lastScrollYRef = useRef(0);
+  const tickingRef = useRef(false);
+
+  useEffect(() => {
+    lastScrollYRef.current = window.scrollY;
+
+    function updateHeaderVisibility() {
+      const currentScrollY = window.scrollY;
+      const scrollDelta = currentScrollY - lastScrollYRef.current;
+
+      if (menuOpen || currentScrollY < 24) {
+        setHeaderHidden(false);
+      } else if (scrollDelta > 8 && currentScrollY > 140) {
+        setHeaderHidden(true);
+      } else if (scrollDelta < -8) {
+        setHeaderHidden(false);
+      }
+
+      lastScrollYRef.current = currentScrollY;
+      tickingRef.current = false;
+    }
+
+    function handleScroll() {
+      if (tickingRef.current) {
+        return;
+      }
+
+      tickingRef.current = true;
+      requestAnimationFrame(updateHeaderVisibility);
+    }
+
+    window.addEventListener("scroll", handleScroll, { passive: true });
+
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+    };
+  }, [menuOpen]);
 
   return (
-    <header className="sticky top-0 z-50 border-b border-[var(--border)] bg-[color-mix(in_oklab,var(--background)_72%,transparent)] backdrop-blur-xl">
+    <header
+      className={`sticky top-0 z-50 border-b border-[var(--border)] bg-[color-mix(in_oklab,var(--background)_72%,transparent)] backdrop-blur-xl transition-transform duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] will-change-transform motion-reduce:transition-none ${
+        headerHidden ? "-translate-y-[calc(100%+1px)]" : "translate-y-0"
+      }`}
+    >
       <SiteShell className="relative py-3">
         <div className="flex min-h-20 items-center justify-between gap-3">
           <Link

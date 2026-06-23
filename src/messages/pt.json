@@ -140,5 +140,22 @@
     "loading": "Traduzindo…",
     "dismiss": "Não, obrigado",
     "error": "Não foi possível traduzir este artigo. Tente novamente mais tarde."
+  },
+  "chat": {
+    "openLabel": "Falar com Arthur",
+    "name": "Arthur",
+    "title": "Guia do diário",
+    "avatarAlt": "Arthur, o guia do diário",
+    "greeting": "Olá, eu sou o Arthur!",
+    "launcherHint": "Quer perguntar ao Arthur?",
+    "placeholder": "Pergunte ao Arthur sobre um artigo…",
+    "send": "Enviar",
+    "empty": "Pergunte-me sobre minhas aventuras, lugares ou experiências publicadas.",
+    "thinking": "Arthur está pensando…",
+    "rateLimited": "Você enviou muitas mensagens — aguarde alguns minutos e tente novamente.",
+    "budgetExhausted": "Arthur atingiu o limite diário de chat. Tente novamente amanhã.",
+    "error": "Algo deu errado. Tente novamente.",
+    "relatedLabel": "Relacionado:",
+    "close": "Fechar chat"
   }
 }
