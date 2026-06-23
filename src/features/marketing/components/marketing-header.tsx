@@ -1,25 +1,28 @@
 "use client";
 
-import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { useState } from "react";
 
+import { Link, usePathname } from "@/i18n/navigation";
 import { mainNavigation } from "@/shared/config/site-content";
 import { CloseIcon, MenuIcon } from "@/shared/icons/site-icons";
 import { BrandMark } from "@/shared/ui/brand-mark";
+import { LanguageSwitcher } from "@/shared/ui/language-switcher";
 import { PrimaryButton } from "@/shared/ui/primary-button";
 import { SiteShell } from "@/shared/ui/site-shell";
+import { ThemeToggle } from "@/shared/ui/theme-toggle";
 
 export function MarketingHeader() {
+  const t = useTranslations();
   const pathname = usePathname();
   const [menuOpen, setMenuOpen] = useState(false);
 
   return (
-    <header className="sticky top-0 z-50 border-b border-white/8 bg-[rgba(10,14,20,0.72)] backdrop-blur-xl">
+    <header className="sticky top-0 z-50 border-b border-[var(--border)] bg-[color-mix(in_oklab,var(--background)_72%,transparent)] backdrop-blur-xl">
       <SiteShell className="relative py-3">
         <div className="flex min-h-20 items-center justify-between gap-3">
           <Link
-            className="min-w-0 flex items-center gap-3 text-stone-100"
+            className="min-w-0 flex items-center gap-3 text-[var(--foreground)]"
             href="/"
             onClick={() => setMenuOpen(false)}
           >
@@ -31,30 +34,32 @@ export function MarketingHeader() {
           <nav aria-label="Primary" className="hidden items-center gap-3 md:flex">
             {mainNavigation.map((item) => (
               <Link
-                key={item.label}
+                key={item.key}
                 className={`rounded-full px-4 py-2 text-sm font-medium transition ${
                   pathname === item.href
-                    ? "bg-white/10 text-white"
-                    : "text-stone-400 hover:bg-white/5 hover:text-stone-100"
+                    ? "bg-[var(--surface-strong)] text-[var(--foreground)]"
+                    : "text-[var(--muted)] hover:bg-[var(--surface)] hover:text-[var(--foreground)]"
                 }`}
                 href={item.href}
                 onClick={() => setMenuOpen(false)}
               >
-                {item.label}
+                {t(`nav.${item.key}`)}
               </Link>
             ))}
           </nav>
 
           <div className="flex items-center gap-2">
+            <LanguageSwitcher />
+            <ThemeToggle />
             <div className="hidden sm:block">
               <PrimaryButton href="/admin" variant="ghost">
-                Open admin
+                {t("nav.openAdmin")}
               </PrimaryButton>
             </div>
             <button
               aria-expanded={menuOpen}
-              aria-label={menuOpen ? "Close menu" : "Open menu"}
-              className="inline-flex size-11 items-center justify-center rounded-full border border-white/12 bg-white/5 text-stone-100 transition hover:bg-white/10 md:hidden"
+              aria-label={menuOpen ? t("menu.close") : t("menu.open")}
+              className="inline-flex size-11 items-center justify-center rounded-full border border-[var(--border)] bg-[var(--surface)] text-[var(--foreground)] transition hover:bg-[var(--surface-strong)] md:hidden"
               onClick={() => setMenuOpen((current) => !current)}
               type="button"
             >
@@ -64,27 +69,27 @@ export function MarketingHeader() {
         </div>
 
         {menuOpen && (
-          <div className="absolute inset-x-5 top-full z-50 mt-3 rounded-[1.8rem] border border-white/8 bg-[rgba(9,13,20,0.96)] p-3 shadow-[0_20px_60px_rgba(0,0,0,0.3)] sm:inset-x-8 md:hidden">
+          <div className="absolute inset-x-5 top-full z-50 mt-3 rounded-[1.8rem] border border-[var(--border)] bg-[color-mix(in_oklab,var(--background)_96%,transparent)] p-3 shadow-[0_20px_60px_rgba(0,0,0,0.3)] sm:inset-x-8 md:hidden">
             <nav aria-label="Mobile primary" className="grid gap-2">
               {mainNavigation.map((item) => (
                 <Link
-                  key={item.label}
+                  key={item.key}
                   className={`rounded-2xl px-4 py-3 text-sm font-medium transition ${
                     pathname === item.href
-                      ? "bg-white/10 text-white"
-                      : "text-stone-300 hover:bg-white/5 hover:text-white"
+                      ? "bg-[var(--surface-strong)] text-[var(--foreground)]"
+                      : "text-[var(--muted)] hover:bg-[var(--surface)] hover:text-[var(--foreground)]"
                   }`}
                   href={item.href}
                   onClick={() => setMenuOpen(false)}
                 >
-                  {item.label}
+                  {t(`nav.${item.key}`)}
                 </Link>
               ))}
             </nav>
 
             <div className="mt-3 sm:hidden">
               <PrimaryButton href="/admin" variant="ghost">
-                Open admin
+                {t("nav.openAdmin")}
               </PrimaryButton>
             </div>
           </div>

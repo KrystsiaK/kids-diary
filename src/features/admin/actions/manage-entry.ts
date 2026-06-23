@@ -2,8 +2,14 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { after } from "next/server";
 
 import { requireAdminSession } from "@/features/admin/lib/admin-auth";
+import {
+  CORE_TARGET_LOCALES,
+  translateEntryToLocale,
+  translateEntryToLocales,
+} from "@/features/content/lib/translate-entry";
 import type { EntryStatusValue } from "@/features/content/lib/sections";
 import { prisma } from "@/lib/prisma";
 
@@ -39,12 +45,18 @@ export async function updateEntryStatusAction(formData: FormData) {
       slug: true,
       section: true,
       publishedAt: true,
+      title: true,
+      kicker: true,
+      excerpt: true,
+      content: true,
     },
   });
 
   if (!entry) {
     redirect("/admin?error=entry-not-found");
   }
+
+  const wasAlreadyPublished = Boolean(entry.publishedAt);
 
   await prisma.entry.update({
     where: { id: entry.id },
@@ -54,6 +66,43 @@ export async function updateEntryStatusAction(formData: FormData) {
         nextStatus === "PUBLISHED" ? (entry.publishedAt ?? new Date()) : null,
     },
   });
+
+  if (nextStatus === "PUBLISHED" && !wasAlreadyPublished) {
+    after(() => translateEntryToLocales(entry, CORE_TARGET_LOCALES));
+  }
+
+  revalidateEntryPaths(entry.section, entry.slug);
+  redirect("/admin?updated=1#content-pipeline");
+}
+
+export async function retryEntryTranslationAction(formData: FormData) {
+  await requireAdminSession();
+
+  const entryId = String(formData.get("entryId") ?? "");
+  const locale = String(formData.get("locale") ?? "");
+
+  if (!CORE_TARGET_LOCALES.includes(locale as (typeof CORE_TARGET_LOCALES)[number])) {
+    redirect("/admin?error=invalid-locale");
+  }
+
+  const entry = await prisma.entry.findUnique({
+    where: { id: entryId },
+    select: {
+      id: true,
+      slug: true,
+      section: true,
+      title: true,
+      kicker: true,
+      excerpt: true,
+      content: true,
+    },
+  });
+
+  if (!entry) {
+    redirect("/admin?error=entry-not-found");
+  }
+
+  await translateEntryToLocale(entry, locale);
 
   revalidateEntryPaths(entry.section, entry.slug);
   redirect("/admin?updated=1#content-pipeline");

@@ -39,6 +39,7 @@ export default function AdminError({
           >
             Try again
           </button>
+          {/* eslint-disable-next-line @next/next/no-html-link-for-pages -- intentional hard reload to recover from a broken client tree */}
           <a
             className="rounded-full border border-white/10 bg-white/5 px-5 py-3 text-center text-sm font-semibold text-stone-200 transition hover:bg-white/10"
             href="/admin"

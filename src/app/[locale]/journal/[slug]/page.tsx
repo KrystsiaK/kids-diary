@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { setRequestLocale } from "next-intl/server";
 import { notFound } from "next/navigation";
 
 import { EntryDetailPage } from "@/features/content/components/entry-detail-page";
@@ -14,7 +15,7 @@ export async function generateMetadata({
   params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
   const { slug } = await params;
-  const entry = await getEntryBySectionAndSlug("experiments", slug);
+  const entry = await getEntryBySectionAndSlug("journal", slug);
 
   if (!entry) {
     return {
@@ -26,28 +27,30 @@ export async function generateMetadata({
     };
   }
 
-  return createEntryMetadata("experiments", entry);
+  return createEntryMetadata("journal", entry);
 }
 
-export default async function ExperimentEntryPage({
+export default async function JournalEntryPage({
   params,
 }: {
-  params: Promise<{ slug: string }>;
+  params: Promise<{ locale: string; slug: string }>;
 }) {
-  const { slug } = await params;
-  const entry = await getEntryBySectionAndSlug("experiments", slug);
+  const { locale, slug } = await params;
+  setRequestLocale(locale);
+
+  const entry = await getEntryBySectionAndSlug("journal", slug, locale);
 
   if (!entry) {
     notFound();
   }
 
-  const relatedEntries = await getRelatedEntries("experiments", entry.id);
+  const relatedEntries = await getRelatedEntries("journal", entry.id, locale);
 
   return (
     <EntryDetailPage
       entry={entry}
       relatedEntries={relatedEntries}
-      section="experiments"
+      section="journal"
     />
   );
 }

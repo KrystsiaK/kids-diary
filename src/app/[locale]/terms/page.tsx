@@ -1,3 +1,5 @@
+import { setRequestLocale } from "next-intl/server";
+
 import { createLegalMetadata, LegalPage } from "@/features/legal/components/legal-page";
 
 export const metadata = createLegalMetadata(
@@ -6,7 +8,14 @@ export const metadata = createLegalMetadata(
   "/terms",
 );
 
-export default function TermsPage() {
+export default async function TermsPage({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}) {
+  const { locale } = await params;
+  setRequestLocale(locale);
+
   return (
     <LegalPage
       description="These terms describe the rules for accessing the public archive, reading published material, and using the protected editorial tools connected to the site."

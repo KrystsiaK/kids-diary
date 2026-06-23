@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { setRequestLocale } from "next-intl/server";
 
 import { MarketingPage } from "@/features/marketing/components/marketing-page";
 import { createPageMetadata } from "@/shared/lib/seo";
@@ -13,6 +14,13 @@ export const metadata: Metadata = createPageMetadata({
   image: "/media/ImageWithFallback.png",
 });
 
-export default async function Home() {
+export default async function Home({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}) {
+  const { locale } = await params;
+  setRequestLocale(locale);
+
   return <MarketingPage />;
 }

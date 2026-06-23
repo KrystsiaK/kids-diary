@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { getTranslations } from "next-intl/server";
 
 import { heroStats } from "@/shared/config/site-content";
 import { CompassIcon, EyeIcon, SparkIcon } from "@/shared/icons/site-icons";
@@ -6,46 +7,49 @@ import { PrimaryButton } from "@/shared/ui/primary-button";
 import { Reveal, RevealGroup, RevealItem } from "@/shared/ui/reveal";
 import { SiteShell } from "@/shared/ui/site-shell";
 
-export function HeroSection() {
+export async function HeroSection() {
+  const t = await getTranslations();
+
   return (
     <section className="pb-20 pt-14 sm:pt-20">
       <SiteShell>
         <div className="grid items-center gap-14 lg:grid-cols-[1.08fr_0.92fr]">
           <RevealGroup className="space-y-8">
             <RevealItem>
-              <div className="inline-flex items-center gap-3 rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm text-stone-300 shadow-[0_12px_40px_rgba(0,0,0,0.24)]">
+              <div className="inline-flex items-center gap-3 rounded-full border border-[var(--border)] bg-[var(--surface)] px-4 py-2 text-sm text-[var(--muted)] shadow-[0_12px_40px_rgba(0,0,0,0.24)]">
                 <SparkIcon className="size-4 text-[var(--secondary)]" />
-                <span>Curator of curiosities</span>
+                <span>{t("hero.kicker")}</span>
               </div>
             </RevealItem>
             <RevealItem>
-              <h1 className="font-display text-[clamp(3.5rem,9vw,7rem)] leading-[0.92] text-white">
-                I collect <span className="text-[var(--accent)]">moments</span>
+              <h1 className="font-display text-[clamp(3.5rem,9vw,7rem)] leading-[0.92] text-[var(--foreground)]">
+                {t("hero.titleLead")}{" "}
+                <span className="text-[var(--accent)]">{t("hero.titleAccent1")}</span>
                 <br />
-                and <span className="text-[var(--secondary)]">mysteries</span>
+                {t("hero.titleConnector")}{" "}
+                <span className="text-[var(--secondary)]">{t("hero.titleAccent2")}</span>
               </h1>
             </RevealItem>
             <RevealItem>
-              <p className="max-w-2xl text-lg leading-8 text-stone-400 sm:text-xl">
-                This journal is part field atlas, part observatory, part studio
-                for the questions that keep glowing after the expedition ends.
+              <p className="max-w-2xl text-lg leading-8 text-[var(--muted)] sm:text-xl">
+                {t("hero.description")}
               </p>
             </RevealItem>
             <RevealItem>
               <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
-                <PrimaryButton href="/journal">Begin exploring</PrimaryButton>
+                <PrimaryButton href="/journal">{t("hero.ctaPrimary")}</PrimaryButton>
                 <PrimaryButton href="#journal" variant="ghost">
-                  Enter the archive room
+                  {t("hero.ctaSecondary")}
                 </PrimaryButton>
               </div>
             </RevealItem>
             <RevealItem>
-              <div className="grid gap-4 border-t border-white/8 pt-6 sm:grid-cols-3">
+              <div className="grid gap-4 border-t border-[var(--border)] pt-6 sm:grid-cols-3">
                 {heroStats.map((stat) => (
-                  <div key={stat.label}>
-                    <div className="font-display text-4xl text-white">{stat.value}</div>
-                    <div className="mt-2 text-xs uppercase tracking-[0.2em] text-stone-500">
-                      {stat.label}
+                  <div key={stat.labelKey}>
+                    <div className="font-display text-4xl text-[var(--foreground)]">{stat.value}</div>
+                    <div className="mt-2 text-xs uppercase tracking-[0.2em] text-[var(--muted)]">
+                      {t(`stats.${stat.labelKey}`)}
                     </div>
                   </div>
                 ))}
@@ -56,9 +60,9 @@ export function HeroSection() {
           <Reveal className="relative">
             <div className="absolute inset-x-12 bottom-0 top-8 rounded-[2rem] bg-[linear-gradient(180deg,rgba(107,92,165,0.18),rgba(74,124,157,0.08))] blur-3xl" />
             <div className="relative">
-              <div className="overflow-hidden rounded-[2rem] border border-white/10 bg-white/5 p-3 shadow-[0_32px_90px_rgba(0,0,0,0.4)]">
+              <div className="overflow-hidden rounded-[2rem] border border-[var(--border)] bg-[var(--surface)] p-3 shadow-[0_32px_90px_rgba(0,0,0,0.4)]">
                 <Image
-                  alt="Explorer on horseback in a dramatic landscape"
+                  alt={t("hero.imageAlt")}
                   className="aspect-[4/5] w-full rounded-[1.4rem] object-cover"
                   height={1200}
                   priority
@@ -74,10 +78,10 @@ export function HeroSection() {
                   </div>
                   <div>
                     <div className="text-sm font-semibold text-stone-100">
-                      Currently
+                      {t("hero.currentlyLabel")}
                     </div>
                     <div className="text-sm text-stone-400">
-                      Somewhere between maps
+                      {t("hero.currentlyValue")}
                     </div>
                   </div>
                 </div>
@@ -86,7 +90,7 @@ export function HeroSection() {
               <div className="absolute -right-4 top-8 rounded-full border border-white/12 bg-black/30 px-4 py-3 text-sm text-stone-300 shadow-[0_12px_50px_rgba(0,0,0,0.24)] backdrop-blur">
                 <span className="inline-flex items-center gap-2">
                   <EyeIcon className="size-4 text-[var(--sand)]" />
-                  Quiet observation mode
+                  {t("hero.observationMode")}
                 </span>
               </div>
             </div>

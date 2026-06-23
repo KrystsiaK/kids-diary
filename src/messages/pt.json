@@ -1,0 +1,144 @@
+{
+  "nav": {
+    "home": "Início",
+    "journal": "Diário",
+    "realms": "Reinos",
+    "experiments": "Experimentos",
+    "openAdmin": "Abrir admin"
+  },
+  "menu": {
+    "open": "Abrir menu",
+    "close": "Fechar menu"
+  },
+  "theme": {
+    "light": "Tema claro",
+    "dark": "Tema escuro",
+    "system": "Tema do sistema",
+    "action": "Clique para alterar."
+  },
+  "language": {
+    "label": "Idioma"
+  },
+  "footer": {
+    "tagline": "Um atlas pessoal de curiosidade, notas de campo e pequenas descobertas estranhas que merecem um segundo olhar.",
+    "copyright": "Copyright © 2026 Explorer's Journal",
+    "navigate": "Navegar",
+    "explore": "Explorar",
+    "exploreHome": "O início reúne as descobertas mais recentes de todas as seções.",
+    "exploreArchive": "Cada arquivo leva a entradas dedicadas com páginas de leitura completas.",
+    "adminLink": "Ir para a sala de controle admin",
+    "legal": "Legal",
+    "privacy": "Política de privacidade",
+    "terms": "Termos de uso"
+  },
+  "hero": {
+    "kicker": "Curador de curiosidades",
+    "titleLead": "Eu coleciono",
+    "titleAccent1": "momentos",
+    "titleConnector": "e",
+    "titleAccent2": "mistérios",
+    "description": "Este diário é parte atlas de campo, parte observatório, parte estúdio para as perguntas que continuam brilhando depois que a expedição termina.",
+    "ctaPrimary": "Comece a explorar",
+    "ctaSecondary": "Entrar na sala do arquivo",
+    "imageAlt": "Explorador a cavalo em uma paisagem dramática",
+    "currentlyLabel": "Agora",
+    "currentlyValue": "Em algum lugar entre mapas",
+    "observationMode": "Modo de observação silenciosa"
+  },
+  "stats": {
+    "realmsMapped": "reinos mapeados",
+    "entriesGathered": "entradas reunidas",
+    "questionsOpen": "perguntas abertas"
+  },
+  "homeRail": {
+    "kicker": "Novidades no mapa",
+    "title": "Comece pelo que foi publicado mais recentemente",
+    "description": "Esta faixa é o caminho mais rápido para o arquivo, se você quiser ir direto a uma história em vez de navegar por seção."
+  },
+  "sectionsHome": {
+    "journal": {
+      "eyebrow": "O Diário",
+      "title": "Crônicas do espanto",
+      "description": "Um registro contínuo de encontros, esboços e detalhes lembrados do campo.",
+      "cta": "Ver todas as entradas do diário"
+    },
+    "realms": {
+      "eyebrow": "Notas de Campo",
+      "title": "Reinos e descobertas",
+      "description": "Cada terreno carrega uma língua diferente. Estes cartões catalogam os lugares onde o espanto se comporta de forma distinta.",
+      "cta": "Abrir o arquivo de reinos"
+    },
+    "experiments": {
+      "eyebrow": "Laboratório",
+      "title": "Experimentos do espanto",
+      "description": "Prompts interativos, perguntas inesperadas e sistemas lúdicos que treinam um olhar mais afiado.",
+      "cta": "Ver todos os experimentos",
+      "activePrompt": "Prompt ativo",
+      "fallbackTitle": "O que muda quando o mapa também é o diário?",
+      "fallbackExcerpt": "Use o laboratório para prototipar sistemas narrativos, motivos visuais e interações guiadas pela curiosidade antes que se tornem entradas.",
+      "imageAlt": "Imagem exploratória abstrata"
+    }
+  },
+  "sectionsArchive": {
+    "journal": {
+      "headline": "Notas de campo da expedição",
+      "description": "Ensaios, esboços e detalhes lembrados da parte silenciosa da descoberta.",
+      "emptyTitle": "Ainda não há entradas no diário",
+      "readingPathBadge": "Caminho de leitura",
+      "readingPathTitle": "Percorra o diário como um caderno de campo",
+      "readingPathDescription": "Cada entrada se lê como um capítulo, não como um cartão em um feed. Comece pelo topo ou pule direto para qualquer nota abaixo."
+    },
+    "realms": {
+      "headline": "Catálogos de terrenos estranhos",
+      "description": "Um arquivo visual de lugares, climas e ecossistemas simbólicos que vale a pena revisitar.",
+      "emptyTitle": "Ainda não há reinos",
+      "atlasTitle": "Um atlas visual de terrenos",
+      "atlasDescription": "Os reinos são navegados como destinos. Cada cartão leva a um registro detalhado próprio, com imagem, contexto e entradas relacionadas."
+    },
+    "experiments": {
+      "headline": "Prompts, sistemas e testes de curiosidade",
+      "description": "Um laboratório para ideias que precisam ser exploradas antes de se tornarem doutrina.",
+      "emptyTitle": "Ainda não há experimentos",
+      "labProtocolBadge": "Protocolo de laboratório",
+      "labProtocolTitle": "Navegue pelos experimentos como prompts, não como posts de blog",
+      "labProtocolDescription": "O arquivo de experimentos é intencionalmente mais compacto e rápido: prompts curtos, pontos de entrada claros e saltos diretos para a ideia."
+    }
+  },
+  "archive": {
+    "badge": "Arquivo da seção",
+    "featuredEntry": "Entrada em destaque de {section}",
+    "readFeatured": "Ler entrada em destaque"
+  },
+  "emptyState": {
+    "description": "Crie a primeira entrada para {section} no painel admin e ela aparecerá aqui automaticamente.",
+    "cta": "Abrir admin"
+  },
+  "entryDetail": {
+    "home": "Início",
+    "backTo": "Voltar para {section}",
+    "readingNoteBadge": "Nota de leitura",
+    "readingNoteBody": "Esta entrada pertence ao arquivo de {section} e é gerenciada na sala de controle admin. Novas publicações desta seção aparecem automaticamente na página inicial e no arquivo após a publicação.",
+    "continueExploring": "Continue explorando",
+    "moreFrom": "Mais de {section}",
+    "minRead": "{count} min de leitura",
+    "readEntry": "Ler entrada",
+    "notFound": "Entrada não encontrada"
+  },
+  "gallery": {
+    "fieldGallery": "Galeria de campo",
+    "photoSequence": "Sequência de fotos"
+  },
+  "cookie": {
+    "badge": "Aviso de cookies",
+    "body": "Este site usa cookies essenciais para acesso seguro ao admin e pode depender de cookies técnicos ou registros do hospedeiro para manter a experiência estável e segura. Ao continuar navegando, você reconhece esse uso. Leia mais na",
+    "privacyLink": "política de privacidade",
+    "understood": "Entendido"
+  },
+  "translatePrompt": {
+    "question": "Ler isto em {language}?",
+    "accept": "Sim, traduzir",
+    "loading": "Traduzindo…",
+    "dismiss": "Não, obrigado",
+    "error": "Não foi possível traduzir este artigo. Tente novamente mais tarde."
+  }
+}

@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { after } from "next/server";
 
 import { requireAdminSession } from "@/features/admin/lib/admin-auth";
 import {
@@ -10,6 +11,10 @@ import {
   isSectionSlug,
   sectionConfig,
 } from "@/features/content/lib/sections";
+import {
+  CORE_TARGET_LOCALES,
+  translateEntryToLocales,
+} from "@/features/content/lib/translate-entry";
 import { prisma } from "@/lib/prisma";
 
 const MAX_GALLERY_IMAGES = 24;
@@ -123,8 +128,10 @@ export async function createEntryAction(
     (_image, index) => index !== safeCoverIndex,
   );
 
+  let created;
+
   try {
-    await prisma.entry.create({
+    created = await prisma.entry.create({
       data: {
         title,
         slug,
@@ -146,6 +153,10 @@ export async function createEntryAction(
   } catch (error) {
     console.error("Failed to create an entry.", error);
     return actionError("The entry could not be saved. Nothing was published; try again.");
+  }
+
+  if (status === "PUBLISHED") {
+    after(() => translateEntryToLocales(created, CORE_TARGET_LOCALES));
   }
 
   revalidatePath("/");

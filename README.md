@@ -51,6 +51,7 @@ NEXT_PUBLIC_SITE_URL=https://your-domain.com
 GOOGLE_SITE_VERIFICATION=google-search-console-token
 AUTH_SECRET=generate-a-long-random-secret
 ADMIN_PASSWORD=use-a-strong-unique-password
+ANTHROPIC_API_KEY=sk-ant-...
 FILE_STORAGE_MODE=local
 UPLOADS_SUBDIR=uploads
 ENABLE_SEED_CONTENT=false
@@ -77,12 +78,15 @@ S3_ENDPOINT=https://your-s3-endpoint
 S3_REGION=auto
 S3_ACCESS_KEY_ID=your-access-key
 S3_SECRET_ACCESS_KEY=your-secret-key
-S3_PUBLIC_BASE_URL=https://your-public-bucket-base-url
 S3_KEY_PREFIX=uploads
 S3_FORCE_PATH_STYLE=true
 ```
 
-Use `S3_PUBLIC_BASE_URL` as the public URL that browsers should load from. The app will upload files through the S3 API and save the resulting public URL in the database.
+For private buckets, omit `S3_PUBLIC_BASE_URL`. The app will upload files through
+the S3 API and serve them back through `/api/media/...`.
+
+`ANTHROPIC_API_KEY` is required for automatic article translations. It must be a
+server-only Railway variable, without a `NEXT_PUBLIC_` prefix.
 
 5. Set the Railway pre-deploy command to:
 

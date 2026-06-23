@@ -2,10 +2,19 @@ import type { Metadata } from "next";
 
 import type { ContentEntry, SectionSlug } from "@/features/content/lib/sections";
 import { getSectionConfig } from "@/features/content/lib/sections";
+import { routing } from "@/i18n/routing";
 import { siteConfig, getSiteUrl } from "@/shared/config/site";
 
 export function createCanonicalUrl(pathname: string) {
   return new URL(pathname, getSiteUrl()).toString();
+}
+
+function getLocalizedPathname(pathname: string, locale: string) {
+  if (locale === routing.defaultLocale) {
+    return pathname;
+  }
+
+  return `/${locale}${pathname === "/" ? "" : pathname}`;
 }
 
 export function createPageMetadata({
@@ -21,12 +30,22 @@ export function createPageMetadata({
 }): Metadata {
   const canonical = createCanonicalUrl(pathname);
   const imageUrl = new URL(image ?? siteConfig.ogImage, getSiteUrl()).toString();
+  const languages = Object.fromEntries(
+    routing.locales.map((locale) => [
+      locale,
+      createCanonicalUrl(getLocalizedPathname(pathname, locale)),
+    ]),
+  );
 
   return {
     title,
     description,
     alternates: {
       canonical,
+      languages: {
+        ...languages,
+        "x-default": createCanonicalUrl(pathname),
+      },
     },
     openGraph: {
       type: "website",

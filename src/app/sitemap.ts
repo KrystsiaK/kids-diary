@@ -2,9 +2,27 @@ import type { MetadataRoute } from "next";
 
 import { getAdminEntries } from "@/features/content/lib/content-repository";
 import { sectionSlugs } from "@/features/content/lib/sections";
+import { routing } from "@/i18n/routing";
 import { getSiteUrl } from "@/shared/config/site";
 
 export const dynamic = "force-dynamic";
+
+function getLocalizedPathname(pathname: string, locale: string) {
+  if (locale === routing.defaultLocale) {
+    return pathname;
+  }
+
+  return `/${locale}${pathname === "/" ? "" : pathname}`;
+}
+
+function withLocaleAlternates(siteUrl: string, pathname: string) {
+  return Object.fromEntries(
+    routing.locales.map((locale) => [
+      locale,
+      `${siteUrl}${getLocalizedPathname(pathname, locale)}`,
+    ]),
+  );
+}
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const siteUrl = getSiteUrl();
@@ -16,33 +34,35 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     "/experiments",
     "/privacy",
     "/terms",
-  ].map((pathname) => ({
-    url: `${siteUrl}${pathname}`,
-    lastModified: new Date(),
-  }));
+  ].flatMap((pathname) =>
+    routing.locales.map((locale) => ({
+      url: `${siteUrl}${getLocalizedPathname(pathname, locale)}`,
+      lastModified: new Date(),
+      alternates: { languages: withLocaleAlternates(siteUrl, pathname) },
+    })),
+  );
 
   let entryRoutes: MetadataRoute.Sitemap = [];
   try {
     const entries = await getAdminEntries();
     entryRoutes = entries
       .filter((entry) => entry.status === "PUBLISHED")
-      .map((entry) => {
+      .flatMap((entry) => {
         const section = sectionSlugs.find(
           (value) => value.toUpperCase() === entry.section,
         );
-        if (!section) return null;
-        return {
-          url: `${siteUrl}/${section}/${entry.slug}`,
+        if (!section) return [];
+
+        const pathname = `/${section}/${entry.slug}`;
+        return routing.locales.map((locale) => ({
+          url: `${siteUrl}${getLocalizedPathname(pathname, locale)}`,
           lastModified: entry.updatedAt,
-        };
-      })
-      .filter((item): item is { url: string; lastModified: Date } =>
-        Boolean(item),
-      );
+          alternates: { languages: withLocaleAlternates(siteUrl, pathname) },
+        }));
+      });
   } catch {
     // DB not available at build time — sitemap will include only static routes
   }
 
   return [...staticRoutes, ...entryRoutes];
 }
-

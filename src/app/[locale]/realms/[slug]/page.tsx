@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { setRequestLocale } from "next-intl/server";
 import { notFound } from "next/navigation";
 
 import { EntryDetailPage } from "@/features/content/components/entry-detail-page";
@@ -14,7 +15,7 @@ export async function generateMetadata({
   params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
   const { slug } = await params;
-  const entry = await getEntryBySectionAndSlug("journal", slug);
+  const entry = await getEntryBySectionAndSlug("realms", slug);
 
   if (!entry) {
     return {
@@ -26,28 +27,30 @@ export async function generateMetadata({
     };
   }
 
-  return createEntryMetadata("journal", entry);
+  return createEntryMetadata("realms", entry);
 }
 
-export default async function JournalEntryPage({
+export default async function RealmEntryPage({
   params,
 }: {
-  params: Promise<{ slug: string }>;
+  params: Promise<{ locale: string; slug: string }>;
 }) {
-  const { slug } = await params;
-  const entry = await getEntryBySectionAndSlug("journal", slug);
+  const { locale, slug } = await params;
+  setRequestLocale(locale);
+
+  const entry = await getEntryBySectionAndSlug("realms", slug, locale);
 
   if (!entry) {
     notFound();
   }
 
-  const relatedEntries = await getRelatedEntries("journal", entry.id);
+  const relatedEntries = await getRelatedEntries("realms", entry.id, locale);
 
   return (
     <EntryDetailPage
       entry={entry}
       relatedEntries={relatedEntries}
-      section="journal"
+      section="realms"
     />
   );
 }

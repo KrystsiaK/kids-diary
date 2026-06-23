@@ -1,3 +1,5 @@
+import { setRequestLocale } from "next-intl/server";
+
 import { createLegalMetadata, LegalPage } from "@/features/legal/components/legal-page";
 
 export const metadata = createLegalMetadata(
@@ -6,7 +8,14 @@ export const metadata = createLegalMetadata(
   "/privacy",
 );
 
-export default function PrivacyPage() {
+export default async function PrivacyPage({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}) {
+  const { locale } = await params;
+  setRequestLocale(locale);
+
   return (
     <LegalPage
       description="This policy explains what information may be processed when someone visits the site, reads public entries, or uses the protected editorial admin area."

@@ -35,18 +35,18 @@ export function BrandMark({
   return (
     <div className="flex items-center gap-3">
       <span
-        className={`relative flex ${styles.shell} items-center justify-center overflow-hidden rounded-full border border-white/10 bg-[radial-gradient(circle_at_30%_30%,rgba(107,92,165,0.28),rgba(74,124,157,0.12)_52%,rgba(255,255,255,0.03)_100%)] text-[var(--accent-foreground)] shadow-[0_10px_30px_rgba(0,0,0,0.24)]`}
+        className={`relative flex ${styles.shell} items-center justify-center overflow-hidden rounded-full border border-[var(--border)] bg-[radial-gradient(circle_at_30%_30%,rgba(107,92,165,0.28),rgba(74,124,157,0.12)_52%,rgba(255,255,255,0.03)_100%),var(--surface-strong)] shadow-[0_10px_30px_rgba(0,0,0,0.24)]`}
       >
-        <span className="absolute inset-[1px] rounded-full border border-white/10" />
-        <AtlasMarkIcon className={`${styles.icon} relative z-10 text-white`} />
+        <span className="absolute inset-[1px] rounded-full border border-[var(--border)]" />
+        <AtlasMarkIcon className={`${styles.icon} relative z-10 text-[var(--accent)]`} />
       </span>
       <div>
-        <div className={`font-display leading-none text-stone-100 ${styles.title}`}>
+        <div className={`font-display leading-none text-[var(--foreground)] ${styles.title}`}>
           Explorer&apos;s Journal
         </div>
         {showTagline && (
           <div
-            className={`brand-tagline mt-1 uppercase tracking-[0.24em] text-stone-400 ${styles.subtitle}`}
+            className={`brand-tagline mt-1 uppercase tracking-[0.24em] text-[var(--muted)] ${styles.subtitle}`}
           >
             Atlas of wonder
           </div>

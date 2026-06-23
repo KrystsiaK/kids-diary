@@ -1,5 +1,7 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 :root {
   --background: #0a0e14;
   --foreground: #ece7df;
@@ -24,6 +26,20 @@
     Baskerville, "Times New Roman", serif;
 }
 
+.light {
+  --background: #f7f4ec;
+  --foreground: #201c16;
+  --muted: #756e63;
+  --surface: rgba(20, 16, 8, 0.04);
+  --surface-strong: rgba(20, 16, 8, 0.07);
+  --accent: #5b3fc4;
+  --accent-foreground: #ffffff;
+  --secondary: #2f6589;
+  --sand: #b8703a;
+  --ring: #5b3fc4;
+  --border: rgba(20, 16, 8, 0.1);
+}
+
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -31,43 +47,45 @@
   --font-display: var(--font-display);
 }
 
-*,
-*::before,
-*::after {
-  box-sizing: border-box;
-}
+@layer base {
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+  }
 
-html {
-  background: var(--background);
-}
+  html {
+    background: var(--background);
+  }
 
-body {
-  background:
-    radial-gradient(circle at top, rgba(107, 92, 165, 0.16), transparent 30%),
-    radial-gradient(circle at 85% 12%, rgba(74, 124, 157, 0.12), transparent 20%),
-    var(--background);
-  color: var(--foreground);
-  font-family: var(--font-body), sans-serif;
-  line-height: 1.5;
-  text-rendering: optimizeLegibility;
-}
+  body {
+    background:
+      radial-gradient(circle at top, rgba(107, 92, 165, 0.16), transparent 30%),
+      radial-gradient(circle at 85% 12%, rgba(74, 124, 157, 0.12), transparent 20%),
+      var(--background);
+    color: var(--foreground);
+    font-family: var(--font-body), sans-serif;
+    line-height: 1.5;
+    text-rendering: optimizeLegibility;
+  }
 
-a {
-  color: inherit;
-  text-decoration: none;
-}
+  a {
+    color: inherit;
+    text-decoration: none;
+  }
 
-button {
-  font: inherit;
-}
+  button {
+    font: inherit;
+  }
 
-img {
-  display: block;
-}
+  img {
+    display: block;
+  }
 
-::selection {
-  background: color-mix(in oklab, var(--accent) 55%, black);
-  color: white;
+  ::selection {
+    background: color-mix(in oklab, var(--accent) 55%, black);
+    color: white;
+  }
 }
 
 .font-display {

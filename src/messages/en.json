@@ -1,0 +1,144 @@
+{
+  "nav": {
+    "home": "Home",
+    "journal": "Journal",
+    "realms": "Realms",
+    "experiments": "Experiments",
+    "openAdmin": "Open admin"
+  },
+  "menu": {
+    "open": "Open menu",
+    "close": "Close menu"
+  },
+  "theme": {
+    "light": "Light theme",
+    "dark": "Dark theme",
+    "system": "System theme",
+    "action": "Click to change."
+  },
+  "language": {
+    "label": "Language"
+  },
+  "footer": {
+    "tagline": "A personal atlas of curiosity, field notes, and strange little breakthroughs that deserve a second look.",
+    "copyright": "Copyright © 2026 Explorer's Journal",
+    "navigate": "Navigate",
+    "explore": "Explore",
+    "exploreHome": "Home curates the freshest discoveries from every section.",
+    "exploreArchive": "Each archive leads to dedicated entries with full reading pages.",
+    "adminLink": "Go to admin control room",
+    "legal": "Legal",
+    "privacy": "Privacy policy",
+    "terms": "Terms of use"
+  },
+  "hero": {
+    "kicker": "Curator of curiosities",
+    "titleLead": "I collect",
+    "titleAccent1": "moments",
+    "titleConnector": "and",
+    "titleAccent2": "mysteries",
+    "description": "This journal is part field atlas, part observatory, part studio for the questions that keep glowing after the expedition ends.",
+    "ctaPrimary": "Begin exploring",
+    "ctaSecondary": "Enter the archive room",
+    "imageAlt": "Explorer on horseback in a dramatic landscape",
+    "currentlyLabel": "Currently",
+    "currentlyValue": "Somewhere between maps",
+    "observationMode": "Quiet observation mode"
+  },
+  "stats": {
+    "realmsMapped": "realms mapped",
+    "entriesGathered": "entries gathered",
+    "questionsOpen": "questions open"
+  },
+  "homeRail": {
+    "kicker": "Fresh on the map",
+    "title": "Start with what was published most recently",
+    "description": "This rail is the quickest way into the archive if you want to jump straight to a story instead of browsing by section."
+  },
+  "sectionsHome": {
+    "journal": {
+      "eyebrow": "The Journal",
+      "title": "Chronicles of wonder",
+      "description": "A running log of encounters, sketches, and remembered details from the field.",
+      "cta": "View all journal entries"
+    },
+    "realms": {
+      "eyebrow": "Field Notes",
+      "title": "Realms and discoveries",
+      "description": "Every terrain carries a different language. These cards catalogue the places where wonder behaves differently.",
+      "cta": "Open the realms archive"
+    },
+    "experiments": {
+      "eyebrow": "Laboratory",
+      "title": "Experiments in wonder",
+      "description": "Interactive prompts, sideways questions, and playful systems that train a sharper eye.",
+      "cta": "Browse all experiments",
+      "activePrompt": "Active prompt",
+      "fallbackTitle": "What changes when the map is also the diary?",
+      "fallbackExcerpt": "Use the lab to prototype narrative systems, visual motifs, and curiosity-driven interactions before they become entries.",
+      "imageAlt": "Abstract exploratory image"
+    }
+  },
+  "sectionsArchive": {
+    "journal": {
+      "headline": "Field notes from the expedition",
+      "description": "Essays, sketches, and remembered details from the quiet part of discovery.",
+      "emptyTitle": "No journal entries yet",
+      "readingPathBadge": "Reading path",
+      "readingPathTitle": "Move through the journal like a field notebook",
+      "readingPathDescription": "Each entry reads as a chapter rather than a card in a feed. Start at the top or jump directly into any note below."
+    },
+    "realms": {
+      "headline": "Catalogues of strange terrains",
+      "description": "A visual archive of places, climates, and symbolic ecosystems worth returning to.",
+      "emptyTitle": "No realms yet",
+      "atlasTitle": "A visual atlas of terrains",
+      "atlasDescription": "Realms are browsed like destinations. Each card leads to its own detailed record with image, context, and related entries."
+    },
+    "experiments": {
+      "headline": "Prompts, systems, and curiosity tests",
+      "description": "A laboratory for ideas that need to be played with before they become doctrine.",
+      "emptyTitle": "No experiments yet",
+      "labProtocolBadge": "Lab protocol",
+      "labProtocolTitle": "Browse experiments as prompts, not blog posts",
+      "labProtocolDescription": "The experiments archive is intentionally tighter and faster: short prompts, clear entry points, and direct jumps into the idea."
+    }
+  },
+  "archive": {
+    "badge": "Section archive",
+    "featuredEntry": "Featured {section} entry",
+    "readFeatured": "Read featured entry"
+  },
+  "emptyState": {
+    "description": "Create the first entry for {section} from the admin panel and it will appear here automatically.",
+    "cta": "Open admin"
+  },
+  "entryDetail": {
+    "home": "Home",
+    "backTo": "Back to {section}",
+    "readingNoteBadge": "Reading note",
+    "readingNoteBody": "This entry belongs to the {section} archive and is managed from the admin control room. New posts for this section automatically appear on the homepage and archive page once published.",
+    "continueExploring": "Continue exploring",
+    "moreFrom": "More from {section}",
+    "minRead": "{count} min read",
+    "readEntry": "Read entry",
+    "notFound": "Entry not found"
+  },
+  "gallery": {
+    "fieldGallery": "Field gallery",
+    "photoSequence": "Photo sequence"
+  },
+  "cookie": {
+    "badge": "Cookie notice",
+    "body": "This site uses essential cookies for secure admin access and may rely on hosting-level technical cookies or logs to keep the experience stable and safe. By continuing to browse, you acknowledge that use. Read more in the",
+    "privacyLink": "privacy policy",
+    "understood": "Understood"
+  },
+  "translatePrompt": {
+    "question": "Read this in {language}?",
+    "accept": "Yes, translate",
+    "loading": "Translating…",
+    "dismiss": "No thanks",
+    "error": "Couldn't translate this article. Try again later."
+  }
+}

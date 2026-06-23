@@ -1,9 +1,10 @@
 import Image from "next/image";
-import Link from "next/link";
+import { getTranslations } from "next-intl/server";
 
 import { formatShortDate } from "@/features/content/lib/formatters";
 import type { ContentEntry, SectionSlug } from "@/features/content/lib/sections";
 import { getEntryHref } from "@/features/content/lib/sections";
+import { Link } from "@/i18n/navigation";
 
 type SectionEntryGridProps = {
   entries: ContentEntry[];
@@ -11,7 +12,7 @@ type SectionEntryGridProps = {
   variant?: "list" | "cards" | "compact";
 };
 
-export function SectionEntryGrid({
+export async function SectionEntryGrid({
   entries,
   section,
   variant = "list",
@@ -19,6 +20,8 @@ export function SectionEntryGrid({
   if (entries.length === 0) {
     return null;
   }
+
+  const t = await getTranslations("entryDetail");
 
   if (variant === "cards") {
     return (
@@ -61,7 +64,7 @@ export function SectionEntryGrid({
         {entries.map((entry) => (
           <article
             key={entry.id}
-            className="grid grid-cols-[auto_1fr_auto] items-center gap-4 rounded-[1.5rem] border border-white/8 bg-white/[0.03] p-5 transition hover:bg-white/[0.05]"
+            className="grid grid-cols-[auto_1fr_auto] items-center gap-4 rounded-[1.5rem] border border-[var(--border)] bg-[var(--surface)] p-5 transition hover:bg-[var(--surface-strong)]"
           >
             <div className="overflow-hidden rounded-2xl">
             <Image
@@ -74,17 +77,17 @@ export function SectionEntryGrid({
             />
             </div>
             <div>
-              <div className="text-xs uppercase tracking-[0.18em] text-stone-500">
+              <div className="text-xs uppercase tracking-[0.18em] text-[var(--muted)]">
                 {entry.kicker}
               </div>
-              <h3 className="mt-1 text-lg font-semibold text-stone-100">
+              <h3 className="mt-1 text-lg font-semibold text-[var(--foreground)]">
                 <Link href={getEntryHref(section, entry.slug)}>{entry.title}</Link>
               </h3>
-              <p className="mt-1 text-sm leading-6 text-stone-400">
+              <p className="mt-1 text-sm leading-6 text-[var(--muted)]">
                 {entry.excerpt}
               </p>
             </div>
-            <div className="text-stone-500">→</div>
+            <div className="text-[var(--muted)]">→</div>
           </article>
         ))}
       </div>
@@ -96,7 +99,7 @@ export function SectionEntryGrid({
       {entries.map((entry) => (
         <article
           key={entry.id}
-          className="grid gap-6 overflow-hidden rounded-[1.8rem] border border-white/8 bg-white/[0.03] p-4 shadow-[0_20px_50px_rgba(0,0,0,0.18)] transition hover:-translate-y-1 hover:border-white/15 hover:bg-white/[0.05] sm:p-6 lg:grid-cols-[320px_1fr]"
+          className="grid gap-6 overflow-hidden rounded-[1.8rem] border border-[var(--border)] bg-[var(--surface)] p-4 shadow-[0_20px_50px_rgba(0,0,0,0.18)] transition hover:-translate-y-1 hover:border-[var(--ring)] hover:bg-[var(--surface-strong)] sm:p-6 lg:grid-cols-[320px_1fr]"
         >
           <div className="relative overflow-hidden rounded-[1.2rem]">
             <Image
@@ -107,24 +110,24 @@ export function SectionEntryGrid({
               src={entry.coverImage}
               width={960}
             />
-            <div className="absolute left-4 top-4 rounded-full bg-[var(--accent)] px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-white">
+            <div className="absolute left-4 top-4 rounded-full bg-[var(--accent)] px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-[var(--accent-foreground)]">
               {entry.kicker}
             </div>
           </div>
-          <div className="flex flex-col justify-between gap-6 rounded-[1.3rem] border border-white/8 bg-black/15 p-5">
+          <div className="flex flex-col justify-between gap-6 rounded-[1.3rem] border border-[var(--border)] bg-[var(--surface)] p-5">
             <div>
-              <div className="mb-4 text-xs uppercase tracking-[0.2em] text-stone-500">
-                {entry.readMinutes} min read · {formatShortDate(entry.publishedAt)}
+              <div className="mb-4 text-xs uppercase tracking-[0.2em] text-[var(--muted)]">
+                {t("minRead", { count: entry.readMinutes })} · {formatShortDate(entry.publishedAt)}
               </div>
-              <h3 className="font-display text-3xl text-white">
+              <h3 className="font-display text-3xl text-[var(--foreground)]">
                 <Link href={getEntryHref(section, entry.slug)}>{entry.title}</Link>
               </h3>
-              <p className="mt-3 max-w-xl text-base leading-7 text-stone-400">
+              <p className="mt-3 max-w-xl text-base leading-7 text-[var(--muted)]">
                 {entry.excerpt}
               </p>
             </div>
-            <div className="flex items-center justify-between border-t border-white/8 pt-4 text-sm text-stone-300">
-              <Link href={getEntryHref(section, entry.slug)}>Read entry</Link>
+            <div className="flex items-center justify-between border-t border-[var(--border)] pt-4 text-sm text-[var(--muted)]">
+              <Link href={getEntryHref(section, entry.slug)}>{t("readEntry")}</Link>
               <span aria-hidden="true">→</span>
             </div>
           </div>

@@ -105,6 +105,32 @@ export function MoonIcon(props: IconProps) {
   );
 }
 
+export function SunIcon(props: IconProps) {
+  return (
+    <svg {...base} {...props}>
+      <circle cx="12" cy="12" r="4.2" />
+      <path d="M12 2.8v2.6" />
+      <path d="M12 18.6v2.6" />
+      <path d="M4.5 4.5l1.8 1.8" />
+      <path d="M17.7 17.7l1.8 1.8" />
+      <path d="M2.8 12h2.6" />
+      <path d="M18.6 12h2.6" />
+      <path d="M4.5 19.5l1.8-1.8" />
+      <path d="M17.7 6.3l1.8-1.8" />
+    </svg>
+  );
+}
+
+export function SystemIcon(props: IconProps) {
+  return (
+    <svg {...base} {...props}>
+      <rect height="12" rx="1.6" width="18" x="3" y="4" />
+      <path d="M8 20h8" />
+      <path d="M12 16v4" />
+    </svg>
+  );
+}
+
 export function OrbitIcon(props: IconProps) {
   return (
     <svg {...base} {...props}>

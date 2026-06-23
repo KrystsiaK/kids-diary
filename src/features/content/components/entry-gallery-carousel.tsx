@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { motion } from "framer-motion";
+import { useTranslations } from "next-intl";
 import { useState } from "react";
 
 type EntryGalleryCarouselProps = {
@@ -13,6 +14,7 @@ export function EntryGalleryCarousel({
   images,
   title,
 }: EntryGalleryCarouselProps) {
+  const t = useTranslations("gallery");
   const [activeIndex, setActiveIndex] = useState(0);
 
   if (images.length === 0) {
@@ -22,20 +24,20 @@ export function EntryGalleryCarousel({
   const activeImage = images[activeIndex];
 
   return (
-    <section className="rounded-[2rem] border border-white/8 bg-white/[0.03] p-4 sm:p-6">
+    <section className="rounded-[2rem] border border-[var(--border)] bg-[var(--surface)] p-4 sm:p-6">
       <div className="mb-4 flex items-center justify-between gap-4">
         <div>
-          <div className="text-xs uppercase tracking-[0.24em] text-stone-500">
-            Field gallery
+          <div className="text-xs uppercase tracking-[0.24em] text-[var(--muted)]">
+            {t("fieldGallery")}
           </div>
-          <h2 className="mt-2 font-display text-3xl text-white">Photo sequence</h2>
+          <h2 className="mt-2 font-display text-3xl text-[var(--foreground)]">{t("photoSequence")}</h2>
         </div>
-        <div className="text-sm text-stone-500">
+        <div className="text-sm text-[var(--muted)]">
           {activeIndex + 1} / {images.length}
         </div>
       </div>
 
-      <div className="overflow-hidden rounded-[1.5rem] border border-white/8 bg-black/20">
+      <div className="overflow-hidden rounded-[1.5rem] border border-[var(--border)] bg-[var(--surface-strong)]">
         <motion.div
           key={activeImage}
           animate={{ opacity: 1, y: 0 }}
@@ -61,7 +63,7 @@ export function EntryGalleryCarousel({
             className={`relative shrink-0 overflow-hidden rounded-2xl border transition ${
               index === activeIndex
                 ? "border-[var(--accent)] ring-2 ring-[var(--accent)]/30"
-                : "border-white/8 hover:border-white/20"
+                : "border-[var(--border)] hover:border-[var(--muted)]"
             }`}
             onClick={() => setActiveIndex(index)}
             type="button"

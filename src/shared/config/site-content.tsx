@@ -1,15 +1,15 @@
 export const mainNavigation = [
-  { label: "Home", href: "/" },
-  { label: "Journal", href: "/journal" },
-  { label: "Realms", href: "/realms" },
-  { label: "Experiments", href: "/experiments" },
-];
+  { key: "home", href: "/" },
+  { key: "journal", href: "/journal" },
+  { key: "realms", href: "/realms" },
+  { key: "experiments", href: "/experiments" },
+] as const;
 
 export const heroStats = [
-  { value: "IX", label: "realms mapped" },
-  { value: "XLII", label: "entries gathered" },
-  { value: "∞", label: "questions open" },
-];
+  { value: "IX", labelKey: "realmsMapped" },
+  { value: "XLII", labelKey: "entriesGathered" },
+  { value: "∞", labelKey: "questionsOpen" },
+] as const;
 
 export const adminSidebar = [
   { label: "Overview", href: "#overview" },

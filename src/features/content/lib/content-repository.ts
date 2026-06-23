@@ -10,6 +10,7 @@ import {
   type SectionSlug,
   getSectionConfig,
 } from "@/features/content/lib/sections";
+import { CORE_TARGET_LOCALES } from "@/features/content/lib/translate-entry";
 import { prisma } from "@/lib/prisma";
 
 function isDatabaseUnavailableError(error: unknown) {
@@ -102,6 +103,45 @@ function normalizeEntry(entry: {
   };
 }
 
+async function applyLocale<T extends ContentEntry>(
+  entries: T[],
+  locale: string | undefined,
+): Promise<T[]> {
+  if (!locale || locale === "en" || entries.length === 0) {
+    return entries;
+  }
+
+  let translations: Array<{
+    entryId: string;
+    title: string;
+    kicker: string;
+    excerpt: string;
+    content: string;
+  }>;
+
+  try {
+    translations = await prisma.entryTranslation.findMany({
+      where: {
+        entryId: { in: entries.map((entry) => entry.id) },
+        locale,
+        status: "READY",
+      },
+      select: { entryId: true, title: true, kicker: true, excerpt: true, content: true },
+    });
+  } catch {
+    return entries;
+  }
+
+  const translationByEntryId = new Map(
+    translations.map((translation) => [translation.entryId, translation]),
+  );
+
+  return entries.map((entry) => {
+    const translation = translationByEntryId.get(entry.id);
+    return translation ? { ...entry, ...translation } : entry;
+  });
+}
+
 async function getPublishedEntriesByDbSection(
   section: EntrySectionValue,
   limit?: number,
@@ -128,27 +168,32 @@ async function getPublishedEntriesByDbSection(
   }
 }
 
-export const getHomeContent = cache(async () => {
+export const getHomeContent = cache(async (locale?: string) => {
   const [journalEntries, realmEntries, experimentEntries] = await Promise.all([
-    getPublishedEntriesByDbSection("JOURNAL", 3),
-    getPublishedEntriesByDbSection("REALMS", 4),
-    getPublishedEntriesByDbSection("EXPERIMENTS", 3),
+    getPublishedEntriesByDbSection("JOURNAL", 3).then((entries) => applyLocale(entries, locale)),
+    getPublishedEntriesByDbSection("REALMS", 4).then((entries) => applyLocale(entries, locale)),
+    getPublishedEntriesByDbSection("EXPERIMENTS", 3).then((entries) =>
+      applyLocale(entries, locale),
+    ),
   ]);
 
   return { journalEntries, realmEntries, experimentEntries };
 });
 
-export const getEntriesForSection = cache(async (section: SectionSlug) => {
+export const getEntriesForSection = cache(async (section: SectionSlug, locale?: string) => {
   const dbSection = getSectionConfig(section).dbValue;
-  return getPublishedEntriesByDbSection(dbSection);
+  const entries = await getPublishedEntriesByDbSection(dbSection);
+  return applyLocale(entries, locale);
 });
 
 export const getEntryBySectionAndSlug = cache(
-  async (section: SectionSlug, slug: string) => {
+  async (section: SectionSlug, slug: string, locale?: string) => {
+    let entry: ContentEntry | null;
+
     try {
       await ensureSeedContent();
 
-      const entry = await prisma.entry.findFirst({
+      const found = await prisma.entry.findFirst({
         where: {
           slug,
           section: getSectionConfig(section).dbValue,
@@ -156,30 +201,38 @@ export const getEntryBySectionAndSlug = cache(
         },
       });
 
-      return entry ? normalizeEntry(entry) : null;
+      entry = found ? normalizeEntry(found) : null;
     } catch (error) {
       if (isDatabaseUnavailableError(error)) {
-        return (
+        entry =
           getStarterEntries().find(
-            (entry) =>
-              entry.slug === slug &&
-              entry.section === getSectionConfig(section).dbValue &&
-              entry.status === "PUBLISHED",
-          ) ?? null
-        );
+            (item) =>
+              item.slug === slug &&
+              item.section === getSectionConfig(section).dbValue &&
+              item.status === "PUBLISHED",
+          ) ?? null;
+      } else {
+        throw error;
       }
-
-      throw error;
     }
+
+    if (!entry) {
+      return null;
+    }
+
+    const [localized] = await applyLocale([entry], locale);
+    return localized;
   },
 );
 
 export const getRelatedEntries = cache(
-  async (section: SectionSlug, currentId: string) => {
+  async (section: SectionSlug, currentId: string, locale?: string) => {
+    let entries: ContentEntry[];
+
     try {
       await ensureSeedContent();
 
-      const entries = await prisma.entry.findMany({
+      const found = await prisma.entry.findMany({
         where: {
           id: { not: currentId },
           section: getSectionConfig(section).dbValue,
@@ -189,21 +242,38 @@ export const getRelatedEntries = cache(
         take: 3,
       });
 
-      return entries.map(normalizeEntry);
+      entries = found.map(normalizeEntry);
     } catch (error) {
       if (isDatabaseUnavailableError(error)) {
-        return getFallbackPublishedEntriesByDbSection(
-          getSectionConfig(section).dbValue,
-        )
-          .filter((entry) => entry.id !== currentId)
+        entries = getFallbackPublishedEntriesByDbSection(getSectionConfig(section).dbValue)
+          .filter((item) => item.id !== currentId)
           .sort((a, b) => Number(b.featured) - Number(a.featured))
           .slice(0, 3);
+      } else {
+        throw error;
       }
-
-      throw error;
     }
+
+    return applyLocale(entries, locale);
   },
 );
+
+export async function getEntryTranslationStatuses(entryId: string) {
+  try {
+    const translations = await prisma.entryTranslation.findMany({
+      where: { entryId, locale: { in: [...CORE_TARGET_LOCALES] } },
+      select: { locale: true, status: true },
+    });
+
+    const statusByLocale = new Map(translations.map((t) => [t.locale, t.status]));
+    return CORE_TARGET_LOCALES.map((locale) => ({
+      locale,
+      status: statusByLocale.get(locale) ?? "PENDING",
+    }));
+  } catch {
+    return CORE_TARGET_LOCALES.map((locale) => ({ locale, status: "PENDING" as const }));
+  }
+}
 
 export async function getAdminEntries() {
   try {

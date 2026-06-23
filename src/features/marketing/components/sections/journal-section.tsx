@@ -1,14 +1,17 @@
-import Link from "next/link";
+import { getTranslations } from "next-intl/server";
 
 import { EmptySectionState } from "@/features/content/components/empty-section-state";
 import { SectionEntryGrid } from "@/features/content/components/section-entry-grid";
 import type { ContentEntry } from "@/features/content/lib/sections";
+import { Link } from "@/i18n/navigation";
 import { MoonIcon } from "@/shared/icons/site-icons";
 import { RevealGroup, RevealItem } from "@/shared/ui/reveal";
 import { SectionHeading } from "@/shared/ui/section-heading";
 import { SiteShell } from "@/shared/ui/site-shell";
 
-export function JournalSection({ entries }: { entries: ContentEntry[] }) {
+export async function JournalSection({ entries }: { entries: ContentEntry[] }) {
+  const t = await getTranslations("sectionsHome.journal");
+
   return (
     <section id="journal" className="py-20">
       <SiteShell>
@@ -16,9 +19,9 @@ export function JournalSection({ entries }: { entries: ContentEntry[] }) {
           <RevealItem>
             <SectionHeading
               accent={<MoonIcon className="size-4 text-[var(--sand)]" />}
-              description="A running log of encounters, sketches, and remembered details from the field."
-              eyebrow="The Journal"
-              title="Chronicles of wonder"
+              description={t("description")}
+              eyebrow={t("eyebrow")}
+              title={t("title")}
             />
           </RevealItem>
           <RevealItem>
@@ -31,10 +34,10 @@ export function JournalSection({ entries }: { entries: ContentEntry[] }) {
           <RevealItem>
             <div className="flex justify-end">
               <Link
-                className="inline-flex rounded-full border border-white/10 bg-white/5 px-5 py-3 text-sm font-semibold text-stone-100 transition hover:bg-white/10"
+                className="inline-flex rounded-full border border-[var(--border)] bg-[var(--surface)] px-5 py-3 text-sm font-semibold text-[var(--foreground)] transition hover:bg-[var(--surface-strong)]"
                 href="/journal"
               >
-                View all journal entries
+                {t("cta")}
               </Link>
             </div>
           </RevealItem>

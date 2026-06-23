@@ -3,6 +3,7 @@ import Link from "next/link";
 import { logoutAction } from "@/features/admin/actions/auth";
 import { CreateEntryForm } from "@/features/admin/components/create-entry-form";
 import { EntryManagementActions } from "@/features/admin/components/entry-management-actions";
+import { EntryTranslationStatus } from "@/features/admin/components/entry-translation-status";
 import { formatRelativeAdminDate } from "@/features/content/lib/formatters";
 import { getAdminEntries, getAdminMetrics } from "@/features/content/lib/content-repository";
 import { adminSidebar } from "@/shared/config/site-content";
@@ -238,6 +239,7 @@ export async function AdminDashboardPage({
                         <th className="px-4 py-4 font-medium">Section</th>
                         <th className="px-4 py-4 font-medium">Updated</th>
                         <th className="px-4 py-4 font-medium">Status</th>
+                        <th className="px-4 py-4 font-medium">Translations</th>
                         <th className="px-4 py-4 font-medium">Actions</th>
                       </tr>
                     </thead>
@@ -263,6 +265,12 @@ export async function AdminDashboardPage({
                             >
                               {entry.status === "PUBLISHED" ? "Published" : "Draft"}
                             </span>
+                          </td>
+                          <td className="px-4 py-4">
+                            <EntryTranslationStatus
+                              entryId={entry.id}
+                              published={entry.status === "PUBLISHED"}
+                            />
                           </td>
                           <td className="px-4 py-4">
                             <EntryManagementActions

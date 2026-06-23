@@ -1,0 +1,144 @@
+{
+  "nav": {
+    "home": "Start",
+    "journal": "Dziennik",
+    "realms": "Krainy",
+    "experiments": "Eksperymenty",
+    "openAdmin": "Otwórz panel admina"
+  },
+  "menu": {
+    "open": "Otwórz menu",
+    "close": "Zamknij menu"
+  },
+  "theme": {
+    "light": "Jasny motyw",
+    "dark": "Ciemny motyw",
+    "system": "Motyw systemowy",
+    "action": "Kliknij, aby zmienić."
+  },
+  "language": {
+    "label": "Język"
+  },
+  "footer": {
+    "tagline": "Osobisty atlas ciekawości, notatek z terenu i drobnych, niezwykłych odkryć, które zasługują na drugie spojrzenie.",
+    "copyright": "Copyright © 2026 Explorer's Journal",
+    "navigate": "Nawigacja",
+    "explore": "Odkrywaj",
+    "exploreHome": "Strona główna zbiera najnowsze odkrycia z każdej sekcji.",
+    "exploreArchive": "Każde archiwum prowadzi do osobnych wpisów z pełnymi stronami do czytania.",
+    "adminLink": "Przejdź do panelu admina",
+    "legal": "Informacje prawne",
+    "privacy": "Polityka prywatności",
+    "terms": "Warunki korzystania"
+  },
+  "hero": {
+    "kicker": "Kurator ciekawostek",
+    "titleLead": "Zbieram",
+    "titleAccent1": "chwile",
+    "titleConnector": "i",
+    "titleAccent2": "tajemnice",
+    "description": "Ten dziennik to częściowo atlas terenowy, częściowo obserwatorium, częściowo studio dla pytań, które wciąż jaśnieją po zakończeniu wyprawy.",
+    "ctaPrimary": "Zacznij odkrywać",
+    "ctaSecondary": "Wejdź do archiwum",
+    "imageAlt": "Odkrywca na koniu na tle dramatycznego pejzażu",
+    "currentlyLabel": "Aktualnie",
+    "currentlyValue": "Gdzieś między mapami",
+    "observationMode": "Tryb cichej obserwacji"
+  },
+  "stats": {
+    "realmsMapped": "krain na mapie",
+    "entriesGathered": "zebranych wpisów",
+    "questionsOpen": "otwartych pytań"
+  },
+  "homeRail": {
+    "kicker": "Nowości na mapie",
+    "title": "Zacznij od tego, co opublikowano najpóźniej",
+    "description": "To zestawienie to najszybsza droga do archiwum, jeśli chcesz przejść prosto do historii, a nie przeglądać według sekcji."
+  },
+  "sectionsHome": {
+    "journal": {
+      "eyebrow": "Dziennik",
+      "title": "Kroniki zachwytu",
+      "description": "Bieżący zapis spotkań, szkiców i zapamiętanych szczegółów z terenu.",
+      "cta": "Zobacz wszystkie wpisy dziennika"
+    },
+    "realms": {
+      "eyebrow": "Notatki z Terenu",
+      "title": "Krainy i odkrycia",
+      "description": "Każdy teren mówi innym językiem. Te karty katalogują miejsca, w których zachwyt zachowuje się inaczej.",
+      "cta": "Otwórz archiwum krain"
+    },
+    "experiments": {
+      "eyebrow": "Laboratorium",
+      "title": "Eksperymenty z zachwytem",
+      "description": "Interaktywne podpowiedzi, nietypowe pytania i zabawne systemy, które wyostrzają spojrzenie.",
+      "cta": "Przeglądaj wszystkie eksperymenty",
+      "activePrompt": "Aktywna podpowiedź",
+      "fallbackTitle": "Co się zmienia, gdy mapa jest też dziennikiem?",
+      "fallbackExcerpt": "Użyj laboratorium do prototypowania systemów narracyjnych, motywów wizualnych i interakcji napędzanych ciekawością, zanim staną się wpisami.",
+      "imageAlt": "Abstrakcyjny obraz eksploracyjny"
+    }
+  },
+  "sectionsArchive": {
+    "journal": {
+      "headline": "Notatki z terenu wyprawy",
+      "description": "Eseje, szkice i zapamiętane szczegóły z cichej części odkrycia.",
+      "emptyTitle": "Brak wpisów w dzienniku",
+      "readingPathBadge": "Ścieżka czytania",
+      "readingPathTitle": "Przechodź przez dziennik jak przez notatnik terenowy",
+      "readingPathDescription": "Każdy wpis czyta się jak rozdział, a nie kartę w kanale. Zacznij od góry albo przejdź prosto do dowolnej notatki poniżej."
+    },
+    "realms": {
+      "headline": "Katalogi niezwykłych terenów",
+      "description": "Wizualne archiwum miejsc, klimatów i symbolicznych ekosystemów, do których warto wracać.",
+      "emptyTitle": "Brak krain",
+      "atlasTitle": "Wizualny atlas terenów",
+      "atlasDescription": "Krainy przegląda się jak miejsca docelowe. Każda karta prowadzi do osobnego, szczegółowego wpisu ze zdjęciem, kontekstem i powiązanymi wpisami."
+    },
+    "experiments": {
+      "headline": "Podpowiedzi, systemy i testy ciekawości",
+      "description": "Laboratorium dla idei, którymi trzeba się pobawić, zanim staną się doktryną.",
+      "emptyTitle": "Brak eksperymentów",
+      "labProtocolBadge": "Protokół laboratoryjny",
+      "labProtocolTitle": "Przeglądaj eksperymenty jak podpowiedzi, nie jak wpisy na blogu",
+      "labProtocolDescription": "Archiwum eksperymentów jest celowo bardziej zwarte i szybsze: krótkie podpowiedzi, jasne punkty wejścia i bezpośrednie przejścia do idei."
+    }
+  },
+  "archive": {
+    "badge": "Archiwum sekcji",
+    "featuredEntry": "Wyróżniony wpis sekcji {section}",
+    "readFeatured": "Przeczytaj wyróżniony wpis"
+  },
+  "emptyState": {
+    "description": "Utwórz pierwszy wpis dla sekcji {section} w panelu admina — pojawi się tutaj automatycznie.",
+    "cta": "Otwórz panel admina"
+  },
+  "entryDetail": {
+    "home": "Start",
+    "backTo": "Wróć do {section}",
+    "readingNoteBadge": "Notatka",
+    "readingNoteBody": "Ten wpis należy do archiwum sekcji {section} i jest zarządzany z panelu admina. Nowe publikacje tej sekcji automatycznie pojawiają się na stronie głównej i w archiwum po opublikowaniu.",
+    "continueExploring": "Kontynuuj odkrywanie",
+    "moreFrom": "Więcej z {section}",
+    "minRead": "{count} min czytania",
+    "readEntry": "Przeczytaj wpis",
+    "notFound": "Wpisu nie znaleziono"
+  },
+  "gallery": {
+    "fieldGallery": "Galeria terenowa",
+    "photoSequence": "Sekwencja zdjęć"
+  },
+  "cookie": {
+    "badge": "Informacja o cookies",
+    "body": "Ta strona używa niezbędnych plików cookie do bezpiecznego dostępu do panelu admina i może korzystać z technicznych plików cookie lub logów hostingu, aby zapewnić stabilne i bezpieczne działanie. Kontynuując przeglądanie, potwierdzasz to wykorzystanie. Więcej informacji w",
+    "privacyLink": "polityce prywatności",
+    "understood": "Rozumiem"
+  },
+  "translatePrompt": {
+    "question": "Przeczytać to w {language}?",
+    "accept": "Tak, przetłumacz",
+    "loading": "Tłumaczę…",
+    "dismiss": "Nie, dzięki",
+    "error": "Nie udało się przetłumaczyć artykułu. Spróbuj ponownie później."
+  }
+}

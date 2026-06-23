@@ -1,13 +1,18 @@
 import type { Metadata, Viewport } from "next";
+import { getLocale } from "next-intl/server";
 
+import { ThemeProvider } from "@/shared/ui/theme-provider";
 import { siteConfig, getSiteUrl } from "@/shared/config/site";
 import "./globals.css";
 
 const googleSiteVerification = process.env.GOOGLE_SITE_VERIFICATION;
 
 export const viewport: Viewport = {
-  themeColor: "#0a0e14",
-  colorScheme: "dark",
+  colorScheme: "light dark",
+  themeColor: [
+    { color: "#f7f4ec", media: "(prefers-color-scheme: light)" },
+    { color: "#0a0e14", media: "(prefers-color-scheme: dark)" },
+  ],
 };
 
 export const metadata: Metadata = {
@@ -72,18 +77,23 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const locale = await getLocale();
+
   return (
     <html
-      lang="en"
+      lang={locale}
       className="h-full scroll-smooth antialiased"
       data-scroll-behavior="smooth"
+      suppressHydrationWarning
     >
-      <body className="min-h-full flex flex-col">{children}</body>
+      <body className="min-h-full flex flex-col">
+        <ThemeProvider>{children}</ThemeProvider>
+      </body>
     </html>
   );
 }

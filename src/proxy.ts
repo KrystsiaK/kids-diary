@@ -1,7 +1,11 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
+import createIntlMiddleware from "next-intl/middleware";
+
+import { routing } from "@/i18n/routing";
 
 const ADMIN_SESSION_COOKIE = "atlas_admin_session";
+const intlMiddleware = createIntlMiddleware(routing);
 
 async function verifySessionToken(value: string | undefined): Promise<boolean> {
   if (!value) return false;
@@ -44,20 +48,24 @@ async function verifySessionToken(value: string | undefined): Promise<boolean> {
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  if (pathname === "/admin/login") {
+  if (pathname.startsWith("/admin")) {
+    if (pathname === "/admin/login") {
+      return NextResponse.next();
+    }
+
+    const sessionCookie = request.cookies.get(ADMIN_SESSION_COOKIE)?.value;
+    const isValid = await verifySessionToken(sessionCookie);
+
+    if (!isValid) {
+      return NextResponse.redirect(new URL("/admin/login", request.url));
+    }
+
     return NextResponse.next();
   }
 
-  const sessionCookie = request.cookies.get(ADMIN_SESSION_COOKIE)?.value;
-  const isValid = await verifySessionToken(sessionCookie);
-
-  if (!isValid) {
-    return NextResponse.redirect(new URL("/admin/login", request.url));
-  }
-
-  return NextResponse.next();
+  return intlMiddleware(request);
 }
 
 export const config = {
-  matcher: ["/admin/:path*"],
+  matcher: ["/((?!api|_next|_vercel|.*\\..*).*)"],
 };

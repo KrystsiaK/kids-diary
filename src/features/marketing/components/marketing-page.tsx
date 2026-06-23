@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { getLocale, getTranslations } from "next-intl/server";
 
 import { getHomeContent } from "@/features/content/lib/content-repository";
 import { getEntryHref } from "@/features/content/lib/sections";
@@ -7,14 +7,17 @@ import { ExperimentsSection } from "@/features/marketing/components/sections/exp
 import { HeroSection } from "@/features/marketing/components/sections/hero-section";
 import { JournalSection } from "@/features/marketing/components/sections/journal-section";
 import { RealmsSection } from "@/features/marketing/components/sections/realms-section";
+import { Link } from "@/i18n/navigation";
 import { CompassIcon } from "@/shared/icons/site-icons";
 import { getSiteUrl } from "@/shared/config/site";
 import { RevealGroup, RevealItem } from "@/shared/ui/reveal";
 import { SiteShell } from "@/shared/ui/site-shell";
 
 export async function MarketingPage() {
+  const t = await getTranslations();
+  const locale = await getLocale();
   const { journalEntries, realmEntries, experimentEntries } =
-    await getHomeContent();
+    await getHomeContent(locale);
   const organizationJsonLd = {
     "@context": "https://schema.org",
     "@type": "Organization",
@@ -62,19 +65,18 @@ export async function MarketingPage() {
       <HeroSection />
       <section className="py-8">
         <SiteShell>
-          <RevealGroup className="grid gap-4 rounded-[2rem] border border-white/8 bg-white/[0.03] p-5 lg:grid-cols-[0.8fr_1.2fr] lg:items-center">
+          <RevealGroup className="grid gap-4 rounded-[2rem] border border-[var(--border)] bg-[var(--surface)] p-5 lg:grid-cols-[0.8fr_1.2fr] lg:items-center">
             <RevealItem>
               <div className="max-w-sm">
-                <div className="inline-flex items-center gap-3 rounded-full border border-white/10 bg-white/5 px-4 py-2 text-[0.72rem] uppercase tracking-[0.24em] text-stone-300">
+                <div className="inline-flex items-center gap-3 rounded-full border border-[var(--border)] bg-[var(--surface)] px-4 py-2 text-[0.72rem] uppercase tracking-[0.24em] text-[var(--muted)]">
                   <CompassIcon className="size-4 text-[var(--sand)]" />
-                  Fresh on the map
+                  {t("homeRail.kicker")}
                 </div>
-                <h2 className="mt-4 font-display text-4xl text-white">
-                  Start with what was published most recently
+                <h2 className="mt-4 font-display text-4xl text-[var(--foreground)]">
+                  {t("homeRail.title")}
                 </h2>
-                <p className="mt-3 text-sm leading-7 text-stone-400">
-                  This rail is the quickest way into the archive if you want
-                  to jump straight to a story instead of browsing by section.
+                <p className="mt-3 text-sm leading-7 text-[var(--muted)]">
+                  {t("homeRail.description")}
                 </p>
               </div>
             </RevealItem>
@@ -82,16 +84,16 @@ export async function MarketingPage() {
               {latestAcrossSite.map((entry) => (
                 <RevealItem key={entry.id}>
                   <Link
-                    className="block rounded-[1.4rem] border border-white/8 bg-black/20 p-4 transition hover:-translate-y-0.5 hover:bg-white/[0.05]"
+                    className="block rounded-[1.4rem] border border-[var(--border)] bg-[var(--surface-strong)] p-4 transition hover:-translate-y-0.5 hover:bg-[var(--surface)]"
                     href={entry.href}
                   >
-                    <div className="text-xs uppercase tracking-[0.18em] text-stone-500">
-                      {entry.section.toLowerCase()} · {entry.kicker}
+                    <div className="text-xs uppercase tracking-[0.18em] text-[var(--muted)]">
+                      {t(`nav.${entry.section.toLowerCase()}`)} · {entry.kicker}
                     </div>
-                    <h3 className="mt-2 text-lg font-semibold text-white">
+                    <h3 className="mt-2 text-lg font-semibold text-[var(--foreground)]">
                       {entry.title}
                     </h3>
-                    <p className="mt-2 text-sm leading-6 text-stone-400">
+                    <p className="mt-2 text-sm leading-6 text-[var(--muted)]">
                       {entry.excerpt}
                     </p>
                   </Link>
