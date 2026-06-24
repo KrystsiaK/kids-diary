@@ -17,8 +17,13 @@ export default defineConfig({
         "src/features/content/lib/rich-content.ts",
         "src/features/content/lib/scoped-css.ts",
         "src/features/content/lib/sections.ts",
+        "src/features/content/lib/formatters.ts",
         "src/lib/request-security.ts",
+        "src/lib/storage.ts",
         "src/lib/uploads.ts",
+        "src/shared/config/site.ts",
+        "src/shared/lib/motion.ts",
+        "src/shared/lib/seo.ts",
         "src/features/content/lib/translate-entry.ts",
       ],
       thresholds: {
