@@ -28,6 +28,7 @@ jobs:
       AUTH_SECRET: quality-secret-placeholder-do-not-use-in-production
       ADMIN_PASSWORD: quality-placeholder
       ANTHROPIC_API_KEY: quality-placeholder
+      ENABLE_SEED_CONTENT: "true"
       NEXT_TELEMETRY_DISABLED: 1
     steps:
       - name: Checkout
