@@ -30,9 +30,14 @@ jobs:
       ANTHROPIC_API_KEY: quality-placeholder
       ENABLE_SEED_CONTENT: "true"
       NEXT_TELEMETRY_DISABLED: 1
+      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      SONAR_ORGANIZATION: ${{ vars.SONAR_ORGANIZATION }}
+      SONAR_PROJECT_KEY: ${{ vars.SONAR_PROJECT_KEY }}
     steps:
       - name: Checkout
         uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
 
       - name: Setup Node
         uses: actions/setup-node@v5
@@ -52,5 +57,21 @@ jobs:
       - name: Install Playwright browsers
         run: npx playwright install --with-deps chromium
 
-      - name: Run quality gate
-        run: npm run test:all
+      - name: Lint
+        run: npm run lint
+
+      - name: Unit and integration coverage
+        run: npm run test:coverage
+
+      - name: SonarQube scan
+        uses: SonarSource/sonarqube-scan-action@v8
+        with:
+          args: >
+            -Dsonar.organization=${{ vars.SONAR_ORGANIZATION }}
+            -Dsonar.projectKey=${{ vars.SONAR_PROJECT_KEY }}
+
+      - name: Build
+        run: npm run build
+
+      - name: E2E
+        run: npm run test:e2e
