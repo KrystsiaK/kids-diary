@@ -85,6 +85,8 @@ function normalizeEntry(entry: {
   kicker: string;
   excerpt: string;
   content: string;
+  customCss: string | null;
+  experimentCategory: string | null;
   coverImage: string;
   galleryImages: string;
   readMinutes: number;
@@ -97,6 +99,8 @@ function normalizeEntry(entry: {
 }): ContentEntry {
   return {
     ...entry,
+    customCss: entry.customCss ?? "",
+    experimentCategory: entry.experimentCategory ?? "",
     section: entry.section as EntrySectionValue,
     status: entry.status as ContentEntry["status"],
     galleryImages: parseGalleryImages(entry.galleryImages),
@@ -154,7 +158,7 @@ async function getPublishedEntriesByDbSection(
         section,
         status: "PUBLISHED",
       },
-      orderBy: [{ publishedAt: "desc" }, { createdAt: "desc" }],
+      orderBy: [{ featured: "desc" }, { publishedAt: "desc" }, { createdAt: "desc" }],
       ...(limit ? { take: limit } : {}),
     });
 

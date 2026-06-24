@@ -30,7 +30,7 @@ export async function AdminDashboardPage({
   return (
     <div className="min-h-screen bg-[linear-gradient(180deg,#0a0e14_0%,#0d1117_100%)] text-stone-100">
       <SiteShell className="py-8 sm:py-10">
-        <div className="grid gap-6 xl:grid-cols-[260px_1fr]">
+        <div className="grid min-w-0 gap-6 xl:grid-cols-[260px_minmax(0,1fr)]">
           <aside className="rounded-[2rem] border border-white/8 bg-white/[0.04] p-5 shadow-[0_24px_80px_rgba(0,0,0,0.25)]">
             <div className="flex items-center gap-3 border-b border-white/8 pb-5">
               <div>
@@ -86,13 +86,13 @@ export async function AdminDashboardPage({
             </div>
           </aside>
 
-          <div className="space-y-6">
+          <div className="min-w-0 space-y-6">
             <RevealItem
-              className="rounded-[2rem] border border-white/8 bg-white/[0.04] p-6 shadow-[0_24px_80px_rgba(0,0,0,0.2)] sm:p-8"
+              className="min-w-0 rounded-[2rem] border border-white/8 bg-white/[0.04] p-6 shadow-[0_24px_80px_rgba(0,0,0,0.2)] sm:p-8"
               id="overview"
             >
-              <div className="flex flex-col gap-8 lg:flex-row lg:items-end lg:justify-between">
-                <div className="max-w-2xl">
+              <div className="flex min-w-0 flex-col gap-8 lg:flex-row lg:items-end lg:justify-between">
+                <div className="min-w-0 max-w-2xl">
                   <div className="mb-4 inline-flex items-center gap-3 rounded-full border border-white/10 bg-white/5 px-4 py-2 text-[0.72rem] uppercase tracking-[0.24em] text-stone-300">
                     <SparkIcon className="size-4 text-[var(--sand)]" />
                     Live control room
@@ -108,7 +108,7 @@ export async function AdminDashboardPage({
                   </p>
                 </div>
 
-                <div className="grid gap-3 sm:grid-cols-2">
+                <div className="grid min-w-0 gap-3 sm:grid-cols-2">
                   <div className="rounded-[1.6rem] border border-white/8 bg-black/20 p-5">
                     <div className="mb-4 flex items-center justify-between text-stone-300">
                       <span className="text-[var(--secondary)]">
@@ -176,7 +176,7 @@ export async function AdminDashboardPage({
               </RevealItem>
             )}
 
-            <div className="grid gap-4 md:grid-cols-2 2xl:grid-cols-4">
+            <div className="grid min-w-0 gap-4 md:grid-cols-2 2xl:grid-cols-4">
               {[
                 {
                   label: "Published entries",
@@ -201,7 +201,7 @@ export async function AdminDashboardPage({
               ].map((metric) => (
                 <RevealItem
                   key={metric.label}
-                  className="rounded-[1.6rem] border border-white/8 bg-white/[0.04] p-5"
+                  className="min-w-0 rounded-[1.6rem] border border-white/8 bg-white/[0.04] p-5"
                 >
                   <div className="text-sm text-stone-400">{metric.label}</div>
                   <div className="mt-3 font-display text-5xl text-white">
@@ -212,9 +212,9 @@ export async function AdminDashboardPage({
               ))}
             </div>
 
-            <div className="grid gap-6 2xl:grid-cols-[1.25fr_0.75fr]">
+            <div className="min-w-0 space-y-6">
               <RevealItem
-                className="rounded-[2rem] border border-white/8 bg-white/[0.04] p-6"
+                className="min-w-0 rounded-[2rem] border border-white/8 bg-white/[0.04] p-6"
                 id="content-pipeline"
               >
                 <div className="mb-6 flex items-center justify-between">
@@ -231,7 +231,7 @@ export async function AdminDashboardPage({
                   </div>
                 </div>
 
-                <div className="overflow-x-auto rounded-[1.4rem] border border-white/8">
+                <div className="max-w-full overflow-x-auto rounded-[1.4rem] border border-white/8">
                   <table className="min-w-[760px] w-full border-collapse text-left">
                     <thead className="bg-white/[0.04] text-xs uppercase tracking-[0.2em] text-stone-500">
                       <tr>
@@ -285,94 +285,42 @@ export async function AdminDashboardPage({
                   </table>
                 </div>
 
-                <div className="mt-6 grid gap-4 md:grid-cols-3">
-                  {[
-                    { id: "journal-entries", title: "Journal", section: "journal" },
-                    { id: "realms-entries", title: "Realms", section: "realms" },
-                    {
-                      id: "experiments-entries",
-                      title: "Experiments",
-                      section: "experiments",
-                    },
-                  ].map((group) => {
-                    const groupEntries = entries.filter(
-                      (entry) => entry.section.toLowerCase() === group.section,
-                    );
-
-                    return (
-                      <section
-                        key={group.id}
-                        id={group.id}
-                        className="rounded-[1.4rem] border border-white/8 bg-black/20 p-4"
-                      >
-                        <div className="mb-3 flex items-center justify-between">
-                          <h3 className="text-sm font-semibold uppercase tracking-[0.18em] text-stone-300">
-                            {group.title}
-                          </h3>
-                          <span className="text-xs text-stone-500">
-                            {groupEntries.length}
-                          </span>
-                        </div>
-                        <div className="space-y-3">
-                          {groupEntries.length > 0 ? (
-                            groupEntries.slice(0, 4).map((entry) => (
-                              <div key={entry.id} className="rounded-2xl border border-white/8 px-3 py-3">
-                                <div className="text-sm text-stone-100">
-                                  {entry.title}
-                                </div>
-                                <div className="mt-1 text-xs text-stone-500">
-                                  {entry.status.toLowerCase()}
-                                </div>
-                              </div>
-                            ))
-                          ) : (
-                            <div className="rounded-2xl border border-dashed border-white/10 px-3 py-4 text-sm text-stone-500">
-                              No entries yet
-                            </div>
-                          )}
-                        </div>
-                      </section>
-                    );
-                  })}
-                </div>
               </RevealItem>
 
-              <div className="grid gap-6">
-                <RevealItem
-                  className="rounded-[2rem] border border-white/8 bg-white/[0.04] p-6"
-                  id="create-entry"
-                >
-                  <div className="mb-4 flex items-center gap-3">
-                    <EyeIcon className="size-5 text-[var(--sand)]" />
-                    <h2 className="font-display text-3xl text-white">Create entry</h2>
-                  </div>
-                  <CreateEntryForm />
-                </RevealItem>
+              <RevealItem
+                className="min-w-0 rounded-[2rem] border border-white/8 bg-white/[0.04] p-6"
+                id="create-entry"
+              >
+                <div className="mb-4 flex items-center gap-3">
+                  <EyeIcon className="size-5 text-[var(--sand)]" />
+                  <h2 className="font-display text-3xl text-white">Create entry</h2>
+                </div>
+                <CreateEntryForm />
+              </RevealItem>
 
-                <RevealItem
-                  className="rounded-[2rem] border border-white/8 bg-white/[0.04] p-6"
-                  id="publishing-rules"
-                >
-                  <div className="mb-4 flex items-center gap-3">
-                    <OrbitIcon className="size-5 text-[var(--secondary)]" />
-                    <h2 className="font-display text-3xl text-white">Publishing rules</h2>
-                  </div>
-                  <div className="space-y-3">
-                    {[
-                      "Choose Journal, Realms, or Experiments and the post will be routed to that archive.",
-                      "Published entries appear on the homepage feeds automatically.",
-                      "Each entry receives its own detail page under its section slug.",
-                    ].map((item) => (
-                      <div
-                        key={item}
-                        className="rounded-[1.2rem] border border-white/8 bg-black/20 px-4 py-3 text-sm text-stone-300"
-                      >
-                        {item}
-                      </div>
-                    ))}
-                  </div>
-                </RevealItem>
-              </div>
+              <RevealItem
+                className="min-w-0 rounded-[2rem] border border-white/8 bg-white/[0.04] p-6"
+                id="publishing-rules"
+              >
+                <div className="mb-4 flex items-center gap-3">
+                  <OrbitIcon className="size-5 text-[var(--secondary)]" />
+                  <h2 className="font-display text-3xl text-white">Publishing rules</h2>
+                </div>
+                <div className="grid gap-3 lg:grid-cols-3">
+                  {[
+                    "Choose Journal, Realms, or Experiments and the post will be routed to that archive.",
+                    "Published entries appear on the homepage feeds automatically.",
+                    "Each entry receives its own detail page under its section slug.",
+                  ].map((item) => (
+                    <div
+                      key={item}
+                      className="rounded-[1.2rem] border border-white/8 bg-black/20 px-4 py-3 text-sm text-stone-300"
+                    >
+                      {item}
+                    </div>
+                  ))}
+                </div>
+              </RevealItem>
             </div>
           </div>
         </div>

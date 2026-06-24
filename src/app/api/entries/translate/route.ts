@@ -84,7 +84,15 @@ export async function POST(request: Request) {
 
   const entry = await prisma.entry.findFirst({
     where: { id: entryId, status: "PUBLISHED" },
-    select: { id: true, title: true, kicker: true, excerpt: true, content: true },
+    select: {
+      id: true,
+      title: true,
+      kicker: true,
+      excerpt: true,
+      content: true,
+      customCss: true,
+      section: true,
+    },
   });
 
   if (!entry) {

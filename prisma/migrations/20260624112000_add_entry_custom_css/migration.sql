@@ -1,0 +1,1 @@
+ALTER TABLE "Entry" ADD COLUMN "customCss" TEXT NOT NULL DEFAULT '';

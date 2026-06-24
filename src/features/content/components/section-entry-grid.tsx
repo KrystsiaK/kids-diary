@@ -101,7 +101,7 @@ export async function SectionEntryGrid({
       {entries.map((entry) => (
         <Link
           key={entry.id}
-          className="grid gap-6 overflow-hidden rounded-[1.8rem] border border-[var(--border)] bg-[var(--surface)] p-4 shadow-[0_20px_50px_rgba(0,0,0,0.18)] transition hover:-translate-y-1 hover:border-[var(--ring)] hover:bg-[var(--surface-strong)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--background)] sm:p-6 lg:grid-cols-[320px_1fr]"
+          className="grid gap-5 overflow-hidden rounded-[1.8rem] border border-[var(--border)] bg-[var(--surface)] p-4 shadow-[0_20px_50px_rgba(0,0,0,0.18)] transition hover:-translate-y-1 hover:border-[var(--ring)] hover:bg-[var(--surface-strong)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--background)] sm:p-6 xl:grid-cols-[320px_1fr]"
           href={getEntryHref(section, entry.slug)}
         >
           <div className="relative overflow-hidden rounded-[1.2rem]">
@@ -109,7 +109,7 @@ export async function SectionEntryGrid({
               alt={entry.title}
               className="aspect-[4/3] h-full w-full object-cover"
               height={720}
-              sizes="(min-width: 1024px) 320px, 100vw"
+              sizes="(min-width: 1280px) 320px, 100vw"
               src={entry.coverImage}
               width={960}
             />

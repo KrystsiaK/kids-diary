@@ -3,8 +3,11 @@ import { prisma } from "@/lib/prisma";
 
 type StarterEntry = Omit<
   ContentEntry,
-  "id" | "createdAt" | "updatedAt"
->;
+  "id" | "createdAt" | "updatedAt" | "customCss" | "experimentCategory"
+> & {
+  customCss?: string;
+  experimentCategory?: string;
+};
 
 const starterEntries: StarterEntry[] = [
   {
@@ -138,6 +141,8 @@ export function getStarterEntries(): ContentEntry[] {
 
     return {
       ...entry,
+      customCss: entry.customCss ?? "",
+      experimentCategory: entry.experimentCategory ?? "",
       id: `starter-${index + 1}`,
       createdAt,
       updatedAt,

@@ -1,0 +1,5 @@
+#!/usr/bin/env sh
+set -eu
+
+echo "Running pre-push quality gate: lint, coverage >= 85%, build, e2e"
+npm run test:all

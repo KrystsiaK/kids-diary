@@ -15,6 +15,8 @@ import {
   CORE_TARGET_LOCALES,
   translateEntryToLocales,
 } from "@/features/content/lib/translate-entry";
+import { prepareRichHtml } from "@/features/content/lib/rich-content";
+import { sanitizeCustomCss } from "@/features/content/lib/scoped-css";
 import { prisma } from "@/lib/prisma";
 
 const MAX_GALLERY_IMAGES = 24;
@@ -54,11 +56,15 @@ function getFallbackCoverImage(section: EntrySectionValue) {
 }
 
 function isValidStoredImageUrl(value: string) {
-  return (
-    value.startsWith("/api/media/uploads/") &&
-    !value.includes("..") &&
-    !value.includes("\\")
-  );
+  if (value.includes("..") || value.includes("\\")) return false;
+  if (value.startsWith("/uploads/")) return true;
+  if (value.startsWith("/api/media/")) return true;
+  try {
+    const url = new URL(value);
+    return url.protocol === "https:";
+  } catch {
+    return false;
+  }
 }
 
 export async function createEntryAction(
@@ -71,7 +77,11 @@ export async function createEntryAction(
   const sectionSlug = String(formData.get("section") ?? "").trim();
   const kicker = String(formData.get("kicker") ?? "").trim();
   const excerpt = String(formData.get("excerpt") ?? "").trim();
-  const content = String(formData.get("content") ?? "").trim();
+  const rawContent = String(formData.get("content") ?? "").trim();
+  const content = prepareRichHtml(rawContent);
+  const experimentCategoryInput = String(formData.get("experimentCategory") ?? "")
+    .trim()
+    .slice(0, 80);
   const status = String(formData.get("status") ?? "DRAFT").trim() as EntryStatusValue;
   const featured = formData.get("featured") === "on";
   const readMinutesInput = Number(formData.get("readMinutes") ?? 0);
@@ -94,6 +104,12 @@ export async function createEntryAction(
   }
 
   const section = sectionConfig[sectionSlug].dbValue;
+  const customCss =
+    section === "EXPERIMENTS"
+      ? sanitizeCustomCss(String(formData.get("customCss") ?? ""))
+      : "";
+  const experimentCategory =
+    section === "EXPERIMENTS" ? experimentCategoryInput : "";
   const slug = slugify(String(formData.get("slug") ?? "") || title);
 
   if (!slug) {
@@ -138,6 +154,8 @@ export async function createEntryAction(
         kicker,
         excerpt,
         content,
+        customCss,
+        experimentCategory,
         coverImage: resolvedCoverImage,
         galleryImages: JSON.stringify(carouselImages),
         readMinutes:

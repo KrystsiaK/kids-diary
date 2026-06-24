@@ -19,6 +19,8 @@ model Entry {
   kicker      String
   excerpt     String
   content     String
+  customCss   String       @default("")
+  experimentCategory String @default("")
   coverImage  String
   galleryImages String     @default("[]")
   readMinutes Int          @default(5)
@@ -51,4 +53,17 @@ model EntryTranslation {
 
   @@unique([entryId, locale])
   @@index([locale])
+}
+
+model MediaFile {
+  id        String   @id @default(cuid())
+  url       String
+  filename  String
+  mimeType  String
+  size      Int
+  width     Int?
+  height    Int?
+  createdAt DateTime @default(now())
+
+  @@index([createdAt])
 }

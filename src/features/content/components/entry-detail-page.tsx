@@ -89,6 +89,8 @@ export async function EntryDetailPage({
       },
     ],
   };
+  const hasCustomExperimentPage =
+    section === "experiments" && entry.customCss.trim().length > 0;
 
   return (
     <PublicLayout>
@@ -165,20 +167,26 @@ export async function EntryDetailPage({
             </div>
           </div>
 
-          <div className="mt-12 grid gap-10 lg:grid-cols-[0.9fr_1.1fr]">
-            <aside className="rounded-[2rem] border border-[var(--border)] bg-[var(--surface)] p-6">
-              <div className="text-xs uppercase tracking-[0.24em] text-[var(--muted)]">
-                {t("entryDetail.readingNoteBadge")}
-              </div>
-              <p className="mt-4 text-sm leading-7 text-[var(--muted)]">
-                {t("entryDetail.readingNoteBody", { section: sectionTitle.toLowerCase() })}
-              </p>
-            </aside>
-
-            <article className="rounded-[2rem] border border-[var(--border)] bg-[var(--surface)] p-6 sm:p-8">
-              <TranslatedArticleBody />
+          {hasCustomExperimentPage ? (
+            <article className="mt-12 min-w-0 overflow-hidden rounded-[2rem] border border-[var(--border)] bg-[var(--surface)]">
+              <TranslatedArticleBody customCss={entry.customCss} scopeId={entry.id} />
             </article>
-          </div>
+          ) : (
+            <div className="mt-12 grid gap-10 lg:grid-cols-[0.9fr_1.1fr]">
+              <aside className="rounded-[2rem] border border-[var(--border)] bg-[var(--surface)] p-6">
+                <div className="text-xs uppercase tracking-[0.24em] text-[var(--muted)]">
+                  {t("entryDetail.readingNoteBadge")}
+                </div>
+                <p className="mt-4 text-sm leading-7 text-[var(--muted)]">
+                  {t("entryDetail.readingNoteBody", { section: sectionTitle.toLowerCase() })}
+                </p>
+              </aside>
+
+              <article className="rounded-[2rem] border border-[var(--border)] bg-[var(--surface)] p-6 sm:p-8">
+                <TranslatedArticleBody />
+              </article>
+            </div>
+          )}
         </EntryTranslationProvider>
 
         {galleryImages.length > 0 && (

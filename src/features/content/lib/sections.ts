@@ -11,6 +11,8 @@ export type ContentEntry = {
   kicker: string;
   excerpt: string;
   content: string;
+  customCss: string;
+  experimentCategory: string;
   coverImage: string;
   galleryImages: string[];
   readMinutes: number;
